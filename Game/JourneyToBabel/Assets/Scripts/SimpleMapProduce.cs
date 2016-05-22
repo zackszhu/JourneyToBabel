@@ -18,7 +18,7 @@ public class SimpleMapProduce : MonoBehaviour {
 	    }
 
 	    var charactGameObject = Instantiate(CharacterCubePrefab, new Vector3(4, 2, 4), Quaternion.identity) as GameObject;
-	    InputManager.GetComponent<CharacterInput>().CharacterMove = charactGameObject.GetComponent<CharacterMove>();
+	    GameObject.Find("InputManager").GetComponent<CharacterInput>().CharacterObject = charactGameObject;
 	}
 	
 	// Update is called once per frame
