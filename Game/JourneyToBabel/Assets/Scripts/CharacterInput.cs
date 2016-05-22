@@ -22,7 +22,6 @@ public class CharacterInput : MonoBehaviour {
     void HandleArrows() {
         var direction = new Vector3(Input.GetAxis("Horizontal"), 0f, Input.GetAxis("Vertical"));
         if (direction.magnitude > 0.01) {
-            Debug.Log(direction);
             _flagMachine.Action(CharacterCommand.MoveBegin, direction);
         }
         else {
