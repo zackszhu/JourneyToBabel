@@ -3,12 +3,12 @@ using System.Collections;
 
 public class ChangeSize : MonoBehaviour {
     public void Bigger() {
-        Debug.Log("B");
+        //Debug.Log("B");
         GetComponent<Renderer>().enabled = false;
     }
 
     public void Smaller() {
-        Debug.Log("S");
+        //Debug.Log("S");
         GetComponent<Renderer>().enabled = true;
     }
 }

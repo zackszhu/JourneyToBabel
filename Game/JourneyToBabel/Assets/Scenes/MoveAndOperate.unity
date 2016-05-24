@@ -271,7 +271,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b96cdd54737a4e7458766f5a5b81057e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CharacterObject: {fileID: 0}
+  CharacterObject: {fileID: 109512, guid: ea9e0fafede9e284a8fa2d1c95fe9c4b, type: 2}
 --- !u!1 &1747736602
 GameObject:
   m_ObjectHideFlags: 0
@@ -302,6 +302,9 @@ MonoBehaviour:
   MapCubePrefab: {fileID: 180260, guid: 926f04463e40b98429d13bcfc865e417, type: 2}
   CharacterCubePrefab: {fileID: 109512, guid: ea9e0fafede9e284a8fa2d1c95fe9c4b, type: 2}
   InputManager: {fileID: 1096110133}
+  MapLength: 10
+  MapWidth: 10
+  Layer: 30
 --- !u!4 &1747736604
 Transform:
   m_ObjectHideFlags: 0
