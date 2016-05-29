@@ -1,0 +1,185 @@
+fileFormatVersion: 2
+guid: 9c7710a4147a36e4db5f4e5032ff8a0d
+timeCreated: 1464511126
+licenseType: Free
+ModelImporter:
+  serializedVersion: 19
+  fileIDToRecycleName:
+    100000: Camera
+    100002: Head
+    100004: Head_end
+    100006: Hips
+    100008: Human
+    100010: Human:Eyebrow009
+    100012: Human:Eyelashes03
+    100014: Human:Low-poly
+    100016: Human:Proxy741
+    100018: Human:Short04
+    100020: Human:Teeth_shape01
+    100022: Human:Tongue01
+    100024: //RootNode
+    100026: Lamp
+    100028: LeftArm
+    100030: LeftFingerBase
+    100032: LeftFoot
+    100034: LeftForeArm
+    100036: LeftHand
+    100038: LeftHandFinger1
+    100040: LeftHandFinger1_end
+    100042: LeftLeg
+    100044: LeftShoulder
+    100046: LeftToeBase
+    100048: LeftToeBase_end
+    100050: LeftUpLeg
+    100052: LHipJoint
+    100054: LowerBack
+    100056: LThumb
+    100058: LThumb_end
+    100060: Neck
+    100062: Neck1
+    100064: RHipJoint
+    100066: RightArm
+    100068: RightFingerBase
+    100070: RightFoot
+    100072: RightForeArm
+    100074: RightHand
+    100076: RightHandFinger1
+    100078: RightHandFinger1_end
+    100080: RightLeg
+    100082: RightShoulder
+    100084: RightToeBase
+    100086: RightToeBase_end
+    100088: RightUpLeg
+    100090: RThumb
+    100092: RThumb_end
+    100094: Spine
+    100096: Spine1
+    400000: Camera
+    400002: Head
+    400004: Head_end
+    400006: Hips
+    400008: Human
+    400010: Human:Eyebrow009
+    400012: Human:Eyelashes03
+    400014: Human:Low-poly
+    400016: Human:Proxy741
+    400018: Human:Short04
+    400020: Human:Teeth_shape01
+    400022: Human:Tongue01
+    400024: //RootNode
+    400026: Lamp
+    400028: LeftArm
+    400030: LeftFingerBase
+    400032: LeftFoot
+    400034: LeftForeArm
+    400036: LeftHand
+    400038: LeftHandFinger1
+    400040: LeftHandFinger1_end
+    400042: LeftLeg
+    400044: LeftShoulder
+    400046: LeftToeBase
+    400048: LeftToeBase_end
+    400050: LeftUpLeg
+    400052: LHipJoint
+    400054: LowerBack
+    400056: LThumb
+    400058: LThumb_end
+    400060: Neck
+    400062: Neck1
+    400064: RHipJoint
+    400066: RightArm
+    400068: RightFingerBase
+    400070: RightFoot
+    400072: RightForeArm
+    400074: RightHand
+    400076: RightHandFinger1
+    400078: RightHandFinger1_end
+    400080: RightLeg
+    400082: RightShoulder
+    400084: RightToeBase
+    400086: RightToeBase_end
+    400088: RightUpLeg
+    400090: RThumb
+    400092: RThumb_end
+    400094: Spine
+    400096: Spine1
+    4300000: Human:Tongue01
+    4300002: Human:Teeth_shape01
+    4300004: Human:Eyelashes03
+    4300006: Human:Eyebrow009
+    4300008: Human:Low-poly
+    4300010: Human:Short04
+    4300012: Human:Proxy741
+    7400000: Human|Huma77_02
+    9500000: //RootNode
+    13700000: Human:Eyebrow009
+    13700002: Human:Eyelashes03
+    13700004: Human:Low-poly
+    13700006: Human:Proxy741
+    13700008: Human:Short04
+    13700010: Human:Teeth_shape01
+    13700012: Human:Tongue01
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleRotations: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,0 +1,316 @@
+fileFormatVersion: 2
+guid: 83d0f3a051da4ab45952207a98288b0f
+timeCreated: 1464510943
+licenseType: Free
+ModelImporter:
+  serializedVersion: 19
+  fileIDToRecycleName:
+    100000: Head
+    100002: Head_end
+    100004: Hips
+    100006: Human
+    100008: Human:Eyebrow009
+    100010: Human:Eyelashes03
+    100012: Human:Low-poly
+    100014: Human:Proxy741
+    100016: Human:Short04
+    100018: Human:Teeth_shape01
+    100020: Human:Tongue01
+    100022: //RootNode
+    100024: LeftArm
+    100026: LeftFingerBase
+    100028: LeftFoot
+    100030: LeftForeArm
+    100032: LeftHand
+    100034: LeftHandFinger1
+    100036: LeftHandFinger1_end
+    100038: LeftLeg
+    100040: LeftShoulder
+    100042: LeftToeBase
+    100044: LeftToeBase_end
+    100046: LeftUpLeg
+    100048: LHipJoint
+    100050: LowerBack
+    100052: LThumb
+    100054: LThumb_end
+    100056: Neck
+    100058: Neck1
+    100060: RHipJoint
+    100062: RightArm
+    100064: RightFingerBase
+    100066: RightFoot
+    100068: RightForeArm
+    100070: RightHand
+    100072: RightHandFinger1
+    100074: RightHandFinger1_end
+    100076: RightLeg
+    100078: RightShoulder
+    100080: RightToeBase
+    100082: RightToeBase_end
+    100084: RightUpLeg
+    100086: RThumb
+    100088: RThumb_end
+    100090: Spine
+    100092: Spine1
+    400000: Head
+    400002: Head_end
+    400004: Hips
+    400006: Human
+    400008: Human:Eyebrow009
+    400010: Human:Eyelashes03
+    400012: Human:Low-poly
+    400014: Human:Proxy741
+    400016: Human:Short04
+    400018: Human:Teeth_shape01
+    400020: Human:Tongue01
+    400022: //RootNode
+    400024: LeftArm
+    400026: LeftFingerBase
+    400028: LeftFoot
+    400030: LeftForeArm
+    400032: LeftHand
+    400034: LeftHandFinger1
+    400036: LeftHandFinger1_end
+    400038: LeftLeg
+    400040: LeftShoulder
+    400042: LeftToeBase
+    400044: LeftToeBase_end
+    400046: LeftUpLeg
+    400048: LHipJoint
+    400050: LowerBack
+    400052: LThumb
+    400054: LThumb_end
+    400056: Neck
+    400058: Neck1
+    400060: RHipJoint
+    400062: RightArm
+    400064: RightFingerBase
+    400066: RightFoot
+    400068: RightForeArm
+    400070: RightHand
+    400072: RightHandFinger1
+    400074: RightHandFinger1_end
+    400076: RightLeg
+    400078: RightShoulder
+    400080: RightToeBase
+    400082: RightToeBase_end
+    400084: RightUpLeg
+    400086: RThumb
+    400088: RThumb_end
+    400090: Spine
+    400092: Spine1
+    4300000: Human:Tongue01
+    4300002: Human:Teeth_shape01
+    4300004: Human:Eyelashes03
+    4300006: Human:Eyebrow009
+    4300008: Human:Low-poly
+    4300010: Human:Short04
+    4300012: Human:Proxy741
+    7400000: Human|Huma05_01
+    7400002: Human|Huma09_01
+    7400004: Human|Huma09_02
+    7400006: Human|Huma09_03
+    7400008: Human|Huma09_04
+    7400010: Human|Huma09_05
+    7400012: Human|Huma09_06
+    7400014: Human|Huma09_07
+    7400016: Human|Huma09_08
+    7400018: Human|Huma09_09.001
+    7400020: Human|Huma09_10
+    7400022: Human|Huma09_11
+    7400024: Human|Huma09_12
+    7400026: Human|Huma09_09
+    9500000: //RootNode
+    13700000: Human:Eyebrow009
+    13700002: Human:Eyelashes03
+    13700004: Human:Low-poly
+    13700006: Human:Proxy741
+    13700008: Human:Short04
+    13700010: Human:Teeth_shape01
+    13700012: Human:Tongue01
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleRotations: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations:
+    - serializedVersion: 16
+      name: Human|Huma09_11
+      takeName: Human|Huma09_11
+      firstFrame: 0
+      lastFrame: 33
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: Human
+        weight: 1
+      - path: Human/Hips
+        weight: 1
+      - path: Human/Hips/LHipJoint
+        weight: 1
+      - path: Human/Hips/LHipJoint/LeftUpLeg
+        weight: 1
+      - path: Human/Hips/LHipJoint/LeftUpLeg/LeftLeg
+        weight: 1
+      - path: Human/Hips/LHipJoint/LeftUpLeg/LeftLeg/LeftFoot
+        weight: 1
+      - path: Human/Hips/LHipJoint/LeftUpLeg/LeftLeg/LeftFoot/LeftToeBase
+        weight: 1
+      - path: Human/Hips/LHipJoint/LeftUpLeg/LeftLeg/LeftFoot/LeftToeBase/LeftToeBase_end
+        weight: 1
+      - path: Human/Hips/LowerBack
+        weight: 1
+      - path: Human/Hips/LowerBack/Spine
+        weight: 1
+      - path: Human/Hips/LowerBack/Spine/Spine1
+        weight: 1
+      - path: Human/Hips/LowerBack/Spine/Spine1/LeftShoulder
+        weight: 1
+      - path: Human/Hips/LowerBack/Spine/Spine1/LeftShoulder/LeftArm
+        weight: 1
+      - path: Human/Hips/LowerBack/Spine/Spine1/LeftShoulder/LeftArm/LeftForeArm
+        weight: 1
+      - path: Human/Hips/LowerBack/Spine/Spine1/LeftShoulder/LeftArm/LeftForeArm/LeftHand
+        weight: 1
+      - path: Human/Hips/LowerBack/Spine/Spine1/LeftShoulder/LeftArm/LeftForeArm/LeftHand/LeftFingerBase
+        weight: 1
+      - path: Human/Hips/LowerBack/Spine/Spine1/LeftShoulder/LeftArm/LeftForeArm/LeftHand/LeftFingerBase/LeftHandFinger1
+        weight: 1
+      - path: Human/Hips/LowerBack/Spine/Spine1/LeftShoulder/LeftArm/LeftForeArm/LeftHand/LeftFingerBase/LeftHandFinger1/LeftHandFinger1_end
+        weight: 1
+      - path: Human/Hips/LowerBack/Spine/Spine1/LeftShoulder/LeftArm/LeftForeArm/LeftHand/LThumb
+        weight: 1
+      - path: Human/Hips/LowerBack/Spine/Spine1/LeftShoulder/LeftArm/LeftForeArm/LeftHand/LThumb/LThumb_end
+        weight: 1
+      - path: Human/Hips/LowerBack/Spine/Spine1/Neck
+        weight: 1
+      - path: Human/Hips/LowerBack/Spine/Spine1/Neck/Neck1
+        weight: 1
+      - path: Human/Hips/LowerBack/Spine/Spine1/Neck/Neck1/Head
+        weight: 1
+      - path: Human/Hips/LowerBack/Spine/Spine1/Neck/Neck1/Head/Head_end
+        weight: 1
+      - path: Human/Hips/LowerBack/Spine/Spine1/RightShoulder
+        weight: 1
+      - path: Human/Hips/LowerBack/Spine/Spine1/RightShoulder/RightArm
+        weight: 1
+      - path: Human/Hips/LowerBack/Spine/Spine1/RightShoulder/RightArm/RightForeArm
+        weight: 1
+      - path: Human/Hips/LowerBack/Spine/Spine1/RightShoulder/RightArm/RightForeArm/RightHand
+        weight: 1
+      - path: Human/Hips/LowerBack/Spine/Spine1/RightShoulder/RightArm/RightForeArm/RightHand/RightFingerBase
+        weight: 1
+      - path: Human/Hips/LowerBack/Spine/Spine1/RightShoulder/RightArm/RightForeArm/RightHand/RightFingerBase/RightHandFinger1
+        weight: 1
+      - path: Human/Hips/LowerBack/Spine/Spine1/RightShoulder/RightArm/RightForeArm/RightHand/RightFingerBase/RightHandFinger1/RightHandFinger1_end
+        weight: 1
+      - path: Human/Hips/LowerBack/Spine/Spine1/RightShoulder/RightArm/RightForeArm/RightHand/RThumb
+        weight: 1
+      - path: Human/Hips/LowerBack/Spine/Spine1/RightShoulder/RightArm/RightForeArm/RightHand/RThumb/RThumb_end
+        weight: 1
+      - path: Human/Hips/RHipJoint
+        weight: 1
+      - path: Human/Hips/RHipJoint/RightUpLeg
+        weight: 1
+      - path: Human/Hips/RHipJoint/RightUpLeg/RightLeg
+        weight: 1
+      - path: Human/Hips/RHipJoint/RightUpLeg/RightLeg/RightFoot
+        weight: 1
+      - path: Human/Hips/RHipJoint/RightUpLeg/RightLeg/RightFoot/RightToeBase
+        weight: 1
+      - path: Human/Hips/RHipJoint/RightUpLeg/RightLeg/RightFoot/RightToeBase/RightToeBase_end
+        weight: 1
+      - path: Human:Eyebrow009
+        weight: 1
+      - path: Human:Eyelashes03
+        weight: 1
+      - path: Human:Low-poly
+        weight: 1
+      - path: Human:Proxy741
+        weight: 1
+      - path: Human:Short04
+        weight: 1
+      - path: Human:Teeth_shape01
+        weight: 1
+      - path: Human:Tongue01
+        weight: 1
+      maskType: 0
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
