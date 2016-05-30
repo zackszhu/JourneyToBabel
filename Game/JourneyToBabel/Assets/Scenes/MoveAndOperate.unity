@@ -300,7 +300,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MapCubePrefab: {fileID: 180260, guid: 926f04463e40b98429d13bcfc865e417, type: 2}
-  CharacterCubePrefab: {fileID: 109512, guid: ea9e0fafede9e284a8fa2d1c95fe9c4b, type: 2}
+  CharacterCubePrefab: {fileID: 167980, guid: 088bd9fab0913f14a8c52d458fa501cc, type: 2}
   InputManager: {fileID: 1096110133}
   MapLength: 10
   MapWidth: 10

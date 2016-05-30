@@ -5,12 +5,13 @@ using Assets.Scripts.StateMachines;
 public class CharacterInput : MonoBehaviour {
     public GameObject CharacterObject;
 
-    [HideInInspector]
     private CharacterFlagMachine _flagMachine;
+    private Animator _animator;
 
 	// Use this for initialization
 	void Awake () {
 	    _flagMachine = CharacterObject.GetComponent<CharacterFlagMachine>();
+	    _animator = CharacterObject.GetComponent<Animator>();
 	}
 	
 	// Update is called once per frame
@@ -22,9 +23,11 @@ public class CharacterInput : MonoBehaviour {
     void HandleArrows() {
         var direction = new Vector3(Input.GetAxis("Horizontal"), 0f, Input.GetAxis("Vertical"));
         if (direction.magnitude > 0.01) {
+            _animator.SetBool("isWalking", true);
             _flagMachine.Action(CharacterCommand.MoveBegin, direction);
         }
         else {
+            _animator.SetBool("isWalking", false);
             _flagMachine.Action(CharacterCommand.MoveEnd);
         }
     }
@@ -32,6 +35,7 @@ public class CharacterInput : MonoBehaviour {
     void HandleJump() {
         var isJump = Input.GetKeyDown(KeyCode.Space);
         if (isJump) {
+            _animator.SetTrigger("jump");
             _flagMachine.Action(CharacterCommand.Jump);
         }
     }

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using Assets.Scripts.StateMachines;
+using UnityEditor.Animations;
 
 public class CharacterMove : MonoBehaviour {
     public float Speed;
@@ -8,6 +9,7 @@ public class CharacterMove : MonoBehaviour {
 
     private Rigidbody _characteRigidbody;
     private CharacterFlagMachine _flagMachine;
+    private Animator _animator;
     private Vector3 _moveDirection;
     private Vector3 previous;
 
@@ -15,6 +17,7 @@ public class CharacterMove : MonoBehaviour {
     void Awake () {
         _characteRigidbody = GetComponent<Rigidbody>();
         _flagMachine = GetComponent<CharacterFlagMachine>();
+        _animator = GetComponent<Animator>();
     }
 	
 	// Update is called once per frame
