@@ -10,11 +10,16 @@ public class CharacterInput : MonoBehaviour {
 
 	// Use this for initialization
 	void Awake () {
-	    _flagMachine = CharacterObject.GetComponent<CharacterFlagMachine>();
-	    _animator = CharacterObject.GetComponent<Animator>();
+
 	}
-	
-	// Update is called once per frame
+
+    public void SetCharacterObject(GameObject characterObject) {
+        CharacterObject = characterObject;
+        _flagMachine = CharacterObject.GetComponent<CharacterFlagMachine>();
+        _animator = CharacterObject.GetComponent<Animator>();
+    }
+    
+    // Update is called once per frame
 	void Update () {
         HandleArrows();
         HandleJump();

@@ -14,7 +14,7 @@ GameObject:
   - 54: {fileID: 5431674}
   - 65: {fileID: 6576306}
   - 114: {fileID: 11491954}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: MapCube
   m_TagString: GameMap
   m_Icon: {fileID: 0}
@@ -76,11 +76,11 @@ Rigidbody:
   m_Mass: 1
   m_Drag: 0
   m_AngularDrag: 0.05
-  m_UseGravity: 1
+  m_UseGravity: 0
   m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 0
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
 --- !u!65 &6534028
 BoxCollider:
   m_ObjectHideFlags: 1
