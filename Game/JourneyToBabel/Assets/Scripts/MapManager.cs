@@ -26,7 +26,7 @@ public class MapManager : MonoBehaviour {
 
     // 根据玩家位置自动创建地图
     void Update() {
-        _mapData.ShowAroundLayer(0, 20);
+        _mapData.ShowAroundLayer();
     }
 
     public void initMap() {
@@ -36,7 +36,7 @@ public class MapManager : MonoBehaviour {
         }
     }
 
-    public Vector3 getStartPosition(int layerNum) {
+    public Vector3 GetStartPosition(int layerNum) {
         return _mapData.GetStartCube(layerNum).OriginPostion;
     }
 
@@ -45,6 +45,10 @@ public class MapManager : MonoBehaviour {
     }
 
     public Vector3 GetDirectionSuggestion(Vector3 pos, int characterId) {
-        return _mapData.GetDirectionSuggestion(pos, characterId);
+        return _mapData.GetDirectionSuggestionByRealTimePos(pos, characterId);
+    }
+
+    public Cube GetTargetSuggestionByCharacterCube(Character character) {
+        return _mapData.GetTargetSuggestionByCharacterCube(character);
     }
 }

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Assets.Scripts;
 using Assets.Scripts.StateMachines;
+using JetBrains.Annotations;
 
 
 /// <summary>
@@ -15,13 +16,14 @@ public class CharacterManager : MonoBehaviour {
     public GameObject CharacterCubePrefab;
     public GameObject InputManager;
     public GameObject MapManager;
-    public GameObject AINumber;
+    public int ComputerNumber = 10;
     public float CharacterYOffest = 1.0f - 0.455f;  //人的坐标和地图坐标不一样！
     // Use this for initialization
     private MapManager _mapManager;
     public float AIComputedeltaTime;  //每隔多少时间算一下ai
 
     private List<Character> _computers;
+    public Character Player { get; private set; }
 
 
     void Awake () {
@@ -33,27 +35,36 @@ public class CharacterManager : MonoBehaviour {
 
     void Start() {
 
-        var temp = _mapManager.getStartPosition(1);
-        temp.y -= CharacterYOffest;
-        //Debug.Log(temp);
-        var charactGameObject = Instantiate(CharacterCubePrefab, temp, Quaternion.identity) as GameObject;
-        //Debug.Log(charactGameObject.transform.position);
-        InputManager.GetComponent<CharacterInput>().SetCharacterObject( charactGameObject);
 
+        CreatePlayer(1);
         //造了小电脑测试一下
         CreateComputer(2);
     }
-    
 
 
+
+    private Character CreateCharacter(int layerNum) {
+        var c = _mapManager.getStartCube(layerNum);
+        var temp = c.OriginPostion;
+        temp.y -= CharacterYOffest;
+        //Debug.Log("startPos" + temp);
+        var o = Instantiate(CharacterCubePrefab, temp, Quaternion.identity) as GameObject;
+        
+        return new Character(o,c);
+
+    }
+
+    public void CreatePlayer(int layerNum) {
+        var character = CreateCharacter(layerNum);
+        character.Type = Character.TYPE.Player;
+        InputManager.GetComponent<CharacterInput>().SetCharacterObject(character.Object);
+    }
     
     //创建一个电脑
     public void CreateComputer(int layerNum) {
-
-        Cube cube = _mapManager.getStartCube(layerNum);
-
-        var charactGameObject = Instantiate(CharacterCubePrefab, _mapManager.getStartPosition(layerNum) + new Vector3(0, 0.5f, 0), Quaternion.identity) as GameObject;
-        _computers.Add(new Character(charactGameObject,0));
+        var character = CreateCharacter(layerNum);
+        character.Type = Character.TYPE.Player;
+        _computers.Add(character);
     }
 
     //
@@ -62,10 +73,48 @@ public class CharacterManager : MonoBehaviour {
     }
 
 	// Update is called once per frame
-	void Update () {
+    void Update() {
+        foreach (var computers in _computers) {
+            var currPos = computers.Object.transform.position;
+            currPos.y += CharacterYOffest;
+
+            var gap = computers.ExpectedCube.OriginPostion - currPos;
+            Debug.Log("checkGap"+ gap);
+            if (gap.magnitude < 0.1) {
+                //finish move, find a new target cube
+               
+                computers.Animator.SetBool("isWalking", false);
+                computers.FlagMachine.Action(CharacterCommand.MoveEnd);
+                var temp = _mapManager.GetTargetSuggestionByCharacterCube(computers);
+                
+
+                if (temp == null) {
+                    return;
+                }
+                else {
+                    computers.ExpectedCube = temp;
+                    computers.CubePath.Add(temp.Id);
+                }
+            }
+            else {
+                if (gap.y > 0.2) {
+                    computers.Animator.SetTrigger("jump");
+                    computers.FlagMachine.Action(CharacterCommand.Jump);
+                }
+                gap.y = 0;
+                computers.Animator.SetBool("isWalking", true);
+                computers.FlagMachine.Action(CharacterCommand.MoveBegin, gap);
+
+
+            }
+
+
+        }
+    }
+
+    /*
 	    for (int i = 0; i < _computers.Count; i++) {
 	        var temp = _computers[i];
-	        temp.AITime -= Time.deltaTime;  //TODO 通过是否到达来判断，而不是定时
 
 
 	        if (temp.AITime <= 0) {
@@ -82,7 +131,8 @@ public class CharacterManager : MonoBehaviour {
                     temp.FlagMachine.Action(CharacterCommand.Jump);
 	                temp.Suggestion.y = 0;
 	            }
-	            temp.AITime = AIComputedeltaTime;
+
+
 	        }
 
 	        if (temp.Suggestion.magnitude > 0.1) {
@@ -101,36 +151,52 @@ public class CharacterManager : MonoBehaviour {
                 temp.FlagMachine.Action(CharacterCommand.MoveEnd);
             }
 	    }
-
-
 	}
+    */
+    
 }
 
-internal class Character {
+public class Character {
+
+    public enum TYPE {
+        Player = 0,
+        Friend = 1,
+        Enemy = 2,
+        UnKnown = 3     //待分配的意思
+    }
+
+    private static int _characterCount = 0;
+    
     public GameObject Object;
-    public int Type;
-    public float AITime;
+    public TYPE Type;
+    public int Id;
+
+    //public float AITime;
     public Vector3 Suggestion;
     public CharacterFlagMachine FlagMachine;
     public Animator Animator;
-    public Vector3 Preposition;
+   
+    //public Vector3 Preposition;
 
-    public Cube CurrentTarget;
+    public Cube ExpectedCube;
     //public List<Cube> CubePath;
-    public HashSet<Cube> CubePath;
+    public HashSet<int> CubePath;
 
 
-    public Character(GameObject o, int type) {
+    public Character(GameObject o, Cube c) {
         Object = o;
-        this.Type = type;
+        Type = TYPE.UnKnown;
         FlagMachine = o.GetComponent<CharacterFlagMachine>();
         Animator = o.GetComponent<Animator>();
-        Preposition = new Vector3(0,0,0);
-        CubePath = new HashSet<Cube>();
+        ExpectedCube = c;
+        //Preposition = new Vector3(0,0,0);
+        CubePath = new HashSet<int>();
+        Id = _characterCount;
+        _characterCount ++;
     }
 
     public void Restart(Cube startCube) {
         CubePath.Clear();
-        CubePath.Add(startCube);
+        CubePath.Add(startCube.Id);
     }
 }

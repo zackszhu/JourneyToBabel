@@ -15,6 +15,7 @@ using Random = UnityEngine.Random;
 
 namespace Assets.Scripts {
     public class Cube {
+        private static int CubeId = 0;
         public bool IsValid;
         public bool IsEdge; //optimize performance
 //        public HashSet<byte> FromPath; //以该方块为目标的路径
@@ -23,8 +24,11 @@ namespace Assets.Scripts {
         public int Score; //某个点能往上走就能加分，往旁边和往上都不行了，就负分表示此路不通，0表示未探索过的。
         public bool Pattern;
         public bool GoodHole;
+        //public bool CouldJump;
         public Vector3 OriginPostion;
-        public HashSet<int> PasserBy;
+        public int Id;
+
+        public HashSet<int> PasserBy;  //实时算法用得到，但是那个算法现在不用他
         /*public int layer;
         public int i;
         public int j;*/
@@ -38,6 +42,9 @@ namespace Assets.Scripts {
             //ToPath = new HashSet<byte>();
             Score = 0;
             GoodHole = false;
+            //CouldJump = false;
+            Id = CubeId;
+            CubeId ++;
         }
 
         public void InValid(bool isEdge = true) {
@@ -106,6 +113,10 @@ namespace Assets.Scripts {
             set { _layerCount = value; }
         }
 
+        public int StartLayerNum { get; set; }
+        public int EndLayerNum { get; set; }
+
+        private readonly int ScoreBase = 10;
         private readonly int _halfLength;
         private readonly int _halfWidth;
         private readonly int[,] _round4 = {{0, 1, 10}, {1, 0, 10}, {0, -1, -1}, {-1, 0, -1}};
@@ -119,6 +130,8 @@ namespace Assets.Scripts {
             this.MapCubeParent = mapCubeParent;
             this._halfLength = MapLength/2;
             this._halfWidth = MapWidth/2;
+            this.StartLayerNum = 0;
+            this.EndLayerNum = 10;
 
             InitBottomLayer();
         }
@@ -186,7 +199,7 @@ namespace Assets.Scripts {
                 for (int j = 0; j < MapWidth; j++) {
                     top[i, j].OriginPostion = new Vector3((i - _halfLength)*scale.x, layerNum*scale.y,
                         (j - _halfLength)*scale.z);
-
+                    top[i, j].Score = layerNum*ScoreBase;
                     if (top[i, j].IsValid) {
                         top[i, j].Object =
                             (GameObject) Instantiate(
@@ -201,18 +214,23 @@ namespace Assets.Scripts {
 
 
         // 动态显示某些连续的层
-        public void ShowAroundLayer(int startLayerNum, int endLayerNum) {
-            for (int l = startLayerNum; l < endLayerNum && l < LayerCount; l++) {
+        public void ShowAroundLayer() {
+            while (EndLayerNum > LayerCount) {
+                AppendLayer();
+            }
+
+
+            for (int l = StartLayerNum; l < EndLayerNum; l++) {
                 _mapData[l].LayerObj.SetActive(true);
                 //ShowLayer(t, Mathf.Abs(l - centerLayer) <= areaSize);
             }
-            int i = startLayerNum - 1;
+            int i = StartLayerNum - 1;
             while (i >= 0 && _mapData[i].LayerObj.activeSelf) {
                 _mapData[i].LayerObj.SetActive(false);
                 i--;
             }
 
-            i = endLayerNum;
+            i = EndLayerNum;
             while (i < LayerCount && _mapData[i].LayerObj.activeSelf) {
                 _mapData[i].LayerObj.SetActive(false);
                 i++;
@@ -430,6 +448,7 @@ namespace Assets.Scripts {
             
         }*/
 
+        //根据（方块坐标）定位方块位置
         public int[] GetIndexByPosition(Vector3 pos) {
             var index = new int[3];
             var scale = MapCubePrefab.transform.localScale;
@@ -440,30 +459,109 @@ namespace Assets.Scripts {
             return index;
         }
 
-        //根据玩家的所处的位置，给他推荐行走方向。
-        public Vector3 GetDirectionSuggestion(Vector3 pos, int characterId) {
+
+        public Cube GetTargetSuggestionByCharacterCube(Character character) {
+            var currCube = character.ExpectedCube;
+
+            int[] index = GetIndexByPosition(currCube.OriginPostion);
+            var LayerNum = index[1];
+            if (LayerNum <= StartLayerNum || LayerNum > EndLayerNum - 1 ) return null;
+            var upLayer = _mapData[LayerNum +1];
+            var currLayer = _mapData[LayerNum];
+            var downLayer = _mapData[LayerNum - 1];  
+
+            int i = index[0];
+            int j = index[2];
+            Debug.Log("index:" + i + ":" + j + ":" + "layer:" + LayerNum);
+            int maxScore = StartLayerNum*ScoreBase-1;
+
+
+            //找寻接下来周边4+4+4
+            Cube result = null;
+            var cubePath = character.CubePath;
+            //upLayer
+            if (!upLayer[i, j].IsValid) {
+                var resultUp = SearchBetterTarget(upLayer, i, j, ref maxScore, character);
+                Debug.Log("Up" + (resultUp == null));
+                if (resultUp != null) result = resultUp;
+            }
+
+            var resultCurr = SearchBetterTarget(currLayer, i, j, ref maxScore, character);
+            Debug.Log("Curr" + (resultCurr == null));
+
+            if (resultCurr != null) result = resultCurr;
+
+            //var resultDown = SearchBetterTarget(downLayer, i, j, ref maxScore, character);
+
+            Cube resultDown = null;
+            for (byte dir = 0; dir < 4; dir++)
+            {
+                var temp = (character.Id + dir) % 4;
+                var ti = i + _round4[temp, 0];
+                var tj = j + _round4[temp, 1];
+                var cube = downLayer[ti, tj];
+                if (!cube.GoodHole || !cube.IsHole() || cube.Score <= maxScore || character.CubePath.Contains(cube.Id) || currLayer[ti,tj].IsValid) continue;
+                maxScore = cube.Score;
+                result = cube;
+            }
+            return result;
+
+            Debug.Log("Down" + (resultDown == null));
+            if (resultDown != null) result = resultDown;
+
+            //无路可走
+            if (result == null) {  
+                currCube.Score = 0;
+                return null;
+            }
+            
+            //无好路可走
+            if (maxScore < currCube.Score) {
+                currCube.Score = maxScore;
+            } 
+            return result;
+        }
+
+        private Cube SearchBetterTarget(Layer layer, int i, int j, ref int maxScore, Character character) {
+            Cube result = null;
+            for (byte dir = 0; dir < 4; dir++)
+            {
+                var temp = (character.Id + dir) % 4;
+                var ti = i + _round4[temp, 0];
+                var tj = j + _round4[temp, 1];
+                var cube = layer[ti, tj];
+                if (!cube.GoodHole || !cube.IsHole() || cube.Score <= maxScore || character.CubePath.Contains(cube.Id)) continue;
+                maxScore = cube.Score;
+                result = cube;
+            }
+            return result;
+        }
+
+
+        //根据玩家的所处实时的位置，给他推荐行走方向，这种AI策略电脑在方块边界处可能会有些奇怪。
+        public Vector3 GetDirectionSuggestionByRealTimePos(Vector3 pos, int characterId) {
             int[] index = GetIndexByPosition(pos);
             var LayerNum = index[1];
             if (LayerNum >= LayerCount - 1) return new Vector3(0, 0, 0);
 
-            int x = index[0];
-            int y = index[2];
-            Debug.Log("index:" + x + ":" + y + ":" + "layer:" + LayerNum);
+            int i = index[0];
+            int j = index[2];
+            Debug.Log("index:" + i + ":" + j + ":" + "layer:" + LayerNum);
 
             var currLayer = _mapData[LayerNum];
-            currLayer[x, y].PasserBy.Add(characterId);
+            currLayer[i, j].PasserBy.Add(characterId);
 
             Vector3 result = Vector3.zero; //默认站着不动
 
             // jump and move
             var upLayer = _mapData[LayerNum + 1];
             int dir = 0;
-            if (!upLayer[x, y].IsValid) {
+            if (!upLayer[i, j].IsValid) {
                 //上方是空 可以跳
-                dir = FindJumpWay(x, y, upLayer.LayerData, characterId);
+                dir = FindJumpWay(i, j, upLayer.LayerData, characterId);
                 if (dir != -1) {
                     Debug.Log("JUMP");
-                    currLayer[x, y].Score++;
+                    currLayer[i, j].Score++;
                     result = new Vector3(_round8[dir, 0], 1, _round8[dir, 1]);
                 }
             }
@@ -471,7 +569,7 @@ namespace Assets.Scripts {
 
             // move 同一层移动
             if (dir != -1) {
-                dir = FindMoveWay(x, y, currLayer.LayerData, characterId);
+                dir = FindMoveWay(i, j, currLayer.LayerData, characterId);
                 if (dir != -1) {
                     Debug.Log("MOVE");
                     result = new Vector3(_round4[dir, 0], 0, _round4[dir, 1]);
@@ -480,8 +578,8 @@ namespace Assets.Scripts {
 
 
             // slide down 走投无路往下走
-            currLayer[x, y].Score -= 10;
-            dir = FindDownWay(x, y, currLayer.LayerData, characterId);
+            currLayer[i, j].Score -= 10;
+            dir = FindDownWay(i, j, currLayer.LayerData, characterId);
             if (dir != -1) {
                 Debug.Log("DOWN");
                 result = new Vector3(_round4[dir, 0], 0, _round4[dir, 1]);
@@ -489,7 +587,7 @@ namespace Assets.Scripts {
             else return result; //下面也无路可走
 
             // 水平修正
-            var targetPos = GetPostionByIndex(x + (int) result.x, LayerNum + (int) result.y, y + (int) result.z);
+            var targetPos = GetPostionByIndex(i + (int) result.x, LayerNum + (int) result.y, j + (int) result.z);
 
             var direction = targetPos - pos;
             direction.y = result.y;
@@ -500,7 +598,7 @@ namespace Assets.Scripts {
             int result = -1;
             int maxScore = -1;
             for (byte dir = 0; dir < 8; dir++) {
-                var temp = (characterId + dir)%8;
+                var temp = (characterId + dir)%8;   //TODO ->4
 
                 var tx = x + _round8[temp, 0];
                 var ty = y + _round8[temp, 1];
