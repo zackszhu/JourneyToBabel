@@ -4,7 +4,8 @@
         Jump,
         FJump,
         SJump,
-        Drag
+        Drag,
+        Transfer,
     }
 
     public enum CharacterCommand {
@@ -14,7 +15,9 @@
         Jumped,
         Grounded,
         DragBegin,
-        DragEnd
+        DragEnd,
+        TransferBegin,
+        TransferEnd
     }
 
 //    public class CharacterTransition {

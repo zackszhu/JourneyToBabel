@@ -7,9 +7,8 @@ public class CharacterInput : MonoBehaviour {
 
     private CharacterFlagMachine _flagMachine;
     private Animator _animator;
-
-	// Use this for initialization
-	void Awake () {
+    // Use this for initialization
+    void Awake () {
 
 	}
 
@@ -23,7 +22,19 @@ public class CharacterInput : MonoBehaviour {
 	void Update () {
         HandleArrows();
         HandleJump();
+	    HandleTransfer();
 	}
+
+    void HandleTransfer() {
+        var isTransfer = Input.GetKeyDown(KeyCode.T);
+
+        if (isTransfer)
+        {
+            _flagMachine.Action(CharacterCommand.TransferBegin);
+        }
+
+        //throw new System.NotImplementedException();
+    }
 
     void HandleArrows() {
         var direction = new Vector3(Input.GetAxis("Horizontal"), 0f, Input.GetAxis("Vertical"));

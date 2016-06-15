@@ -37,7 +37,11 @@ public class MapManager : MonoBehaviour {
     }
 
     public Vector3 getStartPosition(int layerNum) {
-        return _mapData.GetStandPostion(layerNum);
+        return _mapData.GetStartCube(layerNum).OriginPostion;
+    }
+
+    public Cube getStartCube(int layerNum) {
+        return _mapData.GetStartCube(layerNum);
     }
 
     public Vector3 GetDirectionSuggestion(Vector3 pos, int characterId) {

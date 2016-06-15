@@ -10,15 +10,17 @@ public class CharacterFlagMachine : MonoBehaviour {
     public Vector3 MoveReg { get; private set; }
     [HideInInspector]
     public Vector3 DragReg { get; private set; }
+    [HideInInspector]
+    public int TransferReg { get; private set; }
 
-	void Awake () {
+    void Awake () {
 	    Flags = new bool[Enum.GetNames(typeof(CharacterProcessState)).Length];
         Flags.Initialize();
 	}
 
     void LateUpdate() {
-        MoveReg = Vector3.zero;
-        DragReg = Vector3.zero;
+      //  MoveReg = Vector3.zero;
+      //  DragReg = Vector3.zero;
     }
 
     public void Action(CharacterCommand command, Vector3 direction) {
@@ -65,4 +67,13 @@ public class CharacterFlagMachine : MonoBehaviour {
         DragReg = Vector3.zero;
     }
 
+    private void TransferBegin(int layerNum = -1) {
+        Flags[(int) CharacterProcessState.Transfer] = true;
+        TransferReg = layerNum;
+
+    }
+
+    private void TransferEnd() {
+        Flags[(int) CharacterProcessState.Transfer] = false;
+    }
 }

@@ -14,7 +14,7 @@ using Debug = UnityEngine.Debug;
 using Random = UnityEngine.Random;
 
 namespace Assets.Scripts {
-    class Cube {
+    public class Cube {
         public bool IsValid;
         public bool IsEdge; //optimize performance
 //        public HashSet<byte> FromPath; //以该方块为目标的路径
@@ -23,7 +23,11 @@ namespace Assets.Scripts {
         public int Score; //某个点能往上走就能加分，往旁边和往上都不行了，就负分表示此路不通，0表示未探索过的。
         public bool Pattern;
         public bool GoodHole;
+        public Vector3 OriginPostion;
         public HashSet<int> PasserBy;
+        /*public int layer;
+        public int i;
+        public int j;*/
 
         public Cube() {
             IsValid = true;
@@ -52,7 +56,7 @@ namespace Assets.Scripts {
         }
     }
 
-    class Layer {
+    public class Layer {
         public GameObject LayerObj;
         public Cube[,] LayerData;
         public List<int[]> Hole;
@@ -178,16 +182,20 @@ namespace Assets.Scripts {
         private void CreateLayerObject(Cube[,] top, int layerNum) {
             var scale = MapCubePrefab.transform.localScale;
 
-            for (int i = 1; i < MapLength - 1; i++)
-                for (int j = 1; j < MapWidth - 1; j++) {
+            for (int i = 0; i < MapLength; i++)
+                for (int j = 0; j < MapWidth; j++) {
+                    top[i, j].OriginPostion = new Vector3((i - _halfLength)*scale.x, layerNum*scale.y,
+                        (j - _halfLength)*scale.z);
+
                     if (top[i, j].IsValid) {
                         top[i, j].Object =
                             (GameObject) Instantiate(
                                 MapCubePrefab,
                                 //new Vector3((i - Lmid) , layerNum , (j - Wmid)),
-                                new Vector3((i - _halfLength)*scale.x, layerNum*scale.y, (j - _halfLength)*scale.z),
+                                top[i, j].OriginPostion,
                                 Quaternion.identity);
                     }
+                   
                 }
         }
 
@@ -390,9 +398,9 @@ namespace Assets.Scripts {
         }
 
         //在某一层得到一个空着的能站的位置
-        public Vector3 GetStandPostion(int layerNum) {
+        public Cube GetStartCube(int layerNum) {
             var currentLayer = _mapData[layerNum];
-            var lastLayer = _mapData[layerNum - 1];
+            //var lastLayer = _mapData[layerNum - 1];
 
             var hole = currentLayer.Hole;
 
@@ -402,9 +410,9 @@ namespace Assets.Scripts {
 
             for (int i = 0; i < hole.Count; i++) {
                 var t = (i + start)%hole.Count;
-                var cube = lastLayer[hole[t][0], hole[t][1]];
-                if (!cube.IsHole()) {
-                    return cube.Object.transform.position;
+                var cube = currentLayer[hole[t][0], hole[t][1]];
+                if (cube.GoodHole) {
+                    return cube;
                 }
             }
             throw new Exception("no holes");
@@ -417,12 +425,17 @@ namespace Assets.Scripts {
             //return new Vector3(x*scale.x, y* scale.y, z*scale.z);
         }
 
+        /*
+        public int[] GetCubeByPosition() {
+            
+        }*/
+
         public int[] GetIndexByPosition(Vector3 pos) {
             var index = new int[3];
             var scale = MapCubePrefab.transform.localScale;
             //Debug.Log(pos);
             index[0] = (Mathf.RoundToInt(pos.x/scale.x)) + _halfLength;
-            index[1] = Mathf.RoundToInt(pos.y/scale.y + 0.54f);
+            index[1] = Mathf.RoundToInt(pos.y/scale.y);
             index[2] = Mathf.RoundToInt(pos.z/scale.z) + _halfWidth;
             return index;
         }
@@ -435,11 +448,12 @@ namespace Assets.Scripts {
 
             int x = index[0];
             int y = index[2];
-            //Debug.Log("index:" + x + ":" + y + ":" +"layer:"+ LayerNum);
+            Debug.Log("index:" + x + ":" + y + ":" + "layer:" + LayerNum);
 
             var currLayer = _mapData[LayerNum];
             currLayer[x, y].PasserBy.Add(characterId);
 
+            Vector3 result = Vector3.zero; //默认站着不动
 
             // jump and move
             var upLayer = _mapData[LayerNum + 1];
@@ -450,29 +464,36 @@ namespace Assets.Scripts {
                 if (dir != -1) {
                     Debug.Log("JUMP");
                     currLayer[x, y].Score++;
-                    return new Vector3(_round8[dir, 0], 1, _round8[dir, 1]);
+                    result = new Vector3(_round8[dir, 0], 1, _round8[dir, 1]);
                 }
             }
 
 
             // move 同一层移动
-            dir = FindMoveWay(x, y, currLayer.LayerData, characterId);
             if (dir != -1) {
-                Debug.Log("MOVE");
-                return new Vector3(_round4[dir, 0], 0, _round4[dir, 1]);
+                dir = FindMoveWay(x, y, currLayer.LayerData, characterId);
+                if (dir != -1) {
+                    Debug.Log("MOVE");
+                    result = new Vector3(_round4[dir, 0], 0, _round4[dir, 1]);
+                }
             }
 
-            currLayer[x, y].Score -= 10;
 
             // slide down 走投无路往下走
+            currLayer[x, y].Score -= 10;
             dir = FindDownWay(x, y, currLayer.LayerData, characterId);
             if (dir != -1) {
                 Debug.Log("DOWN");
-                return new Vector3(_round4[dir, 0], 0, _round4[dir, 1]);
+                result = new Vector3(_round4[dir, 0], 0, _round4[dir, 1]);
             }
+            else return result; //下面也无路可走
 
-            //stand 站着不动
-            return new Vector3(0, 0, 0);
+            // 水平修正
+            var targetPos = GetPostionByIndex(x + (int) result.x, LayerNum + (int) result.y, y + (int) result.z);
+
+            var direction = targetPos - pos;
+            direction.y = result.y;
+            return direction;
         }
 
         public int FindJumpWay(int x, int y, Cube[,] layerData, int characterId) {
@@ -486,6 +507,27 @@ namespace Assets.Scripts {
 
                 //Debug.Log("coord" + x + " " + y);
                 var cube = layerData[tx, ty];
+                if (cube.GoodHole && cube.IsHole() && cube.Score > maxScore && !cube.PasserBy.Contains(characterId)) {
+                    //找到，为了尽可能高处传输
+                    maxScore = cube.Score;
+                    result = temp;
+                }
+            }
+            return result;
+        }
+
+
+        public int FindMoveWay(int x, int y, Cube[,] layerData, int characterId) {
+            int result = -1;
+            int maxScore = -1;
+            for (byte dir = 0; dir < 4; dir++) {
+                var temp = (characterId + dir)%4;
+
+                var tx = x + _round4[temp, 0];
+                var ty = y + _round4[temp, 1];
+
+                //Debug.Log("coord" + x + " " + y);
+                var cube = layerData[tx, ty];
                 if (cube.GoodHole && cube.Score > maxScore && !cube.PasserBy.Contains(characterId)) {
                     maxScore = cube.Score;
                     result = temp;
@@ -493,30 +535,6 @@ namespace Assets.Scripts {
             }
             return result;
         }
-
-
-        public int FindMoveWay(int x, int y, Cube[,] layerData, int characterId)
-        {
-            int result = -1;
-            int maxScore = -1;
-            for (byte dir = 0; dir < 4; dir++)
-            {
-                var temp = (characterId + dir) % 4;
-
-                var tx = x + _round4[temp, 0];
-                var ty = y + _round4[temp, 1];
-
-                //Debug.Log("coord" + x + " " + y);
-                var cube = layerData[tx, ty];
-                if (cube.GoodHole && cube.Score > maxScore && !cube.PasserBy.Contains(characterId))
-                {
-                    maxScore = cube.Score;
-                    result = temp;
-                }
-            }
-            return result;
-        }
-
 
 
         public int FindDownWay(int x, int y, Cube[,] layerData, int characterId) {
