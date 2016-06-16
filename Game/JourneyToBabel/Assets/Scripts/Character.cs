@@ -29,7 +29,7 @@ namespace Assets.Scripts {
 
         //public Vector3 Preposition;
 
-        public Cube ExpectedCube;
+        public Cube ExpectedCube;   //将要去的方格，可能以后还要再多一个currCube变量
         //public List<Cube> CubePath;
         public HashSet<int> CubePath;
 

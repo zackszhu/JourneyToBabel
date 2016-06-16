@@ -39,6 +39,9 @@ public class CharacterManager : MonoBehaviour {
         CreatePlayer(1);
         //造了小电脑测试一下
         CreateComputer(2);
+        CreateComputer(3);
+        CreateComputer(4);
+        CreateComputer(3);
     }
 
 
@@ -75,11 +78,14 @@ public class CharacterManager : MonoBehaviour {
 
 	// Update is called once per frame
     void Update() {
-        //HandlePlayer();
+        HandlePlayer();
         HandleAI();
     }
 
-
+    void HandlePlayer() {
+        
+        //Player.ExpectedCube = _mapManager.GetCubeByPosition(Player.Object.transform + CharacterYOffest);
+    }
 
 
     void HandleAI() {

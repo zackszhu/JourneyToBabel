@@ -48,6 +48,10 @@ public class MapManager : MonoBehaviour {
         return _mapData.GetIndexByPosition(pos);
     }
 
+    public Cube GetCubeByPosition(Vector3 pos) {
+        return _mapData.GetCubeByPosition(pos);
+    }
+
     public Cube GetStartCube(int layerNum) {
         return _mapData.GetStartCube(layerNum);
     }
