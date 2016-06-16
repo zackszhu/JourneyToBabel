@@ -29,7 +29,11 @@ public class MapManager : MonoBehaviour {
         _mapData.ShowAroundLayer();
     }
 
-    public void initMap() {
+    /*public SetValidLayer(int PlayerLayNum) {
+         
+    }*/
+
+    private void initMap() {
         
         for (int k = 0; k < MaxViewLayer; k++) {
             _mapData.AppendLayer();
@@ -40,7 +44,11 @@ public class MapManager : MonoBehaviour {
         return _mapData.GetStartCube(layerNum).OriginPostion;
     }
 
-    public Cube getStartCube(int layerNum) {
+    public int[] GetIndexByPosition(Vector3 pos) {
+        return _mapData.GetIndexByPosition(pos);
+    }
+
+    public Cube GetStartCube(int layerNum) {
         return _mapData.GetStartCube(layerNum);
     }
 
@@ -48,7 +56,7 @@ public class MapManager : MonoBehaviour {
         return _mapData.GetDirectionSuggestionByRealTimePos(pos, characterId);
     }
 
-    public Cube GetTargetSuggestionByCharacterCube(Character character) {
+    public Cube GetTargetSuggestionByCharacter(Character character) {
         return _mapData.GetTargetSuggestionByCharacterCube(character);
     }
 }

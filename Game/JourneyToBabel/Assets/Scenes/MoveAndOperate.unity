@@ -315,8 +315,7 @@ MonoBehaviour:
   CharacterCubePrefab: {fileID: 141562, guid: 21245c431a3cce04e8e66895e90e949e, type: 2}
   InputManager: {fileID: 1096110133}
   MapManager: {fileID: 1747736602}
-  AINumber: {fileID: 0}
-  CharacterYOffest: 0.54499996
+  ComputerNumber: 10
   AIComputedeltaTime: 0.5
 --- !u!1 &750758897
 GameObject:
@@ -384,7 +383,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b96cdd54737a4e7458766f5a5b81057e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CharacterObject: {fileID: 109512, guid: ea9e0fafede9e284a8fa2d1c95fe9c4b, type: 2}
+  MapManager: {fileID: 1747736602}
+  CharacterManager: {fileID: 630702247}
 --- !u!1 &1747736602
 GameObject:
   m_ObjectHideFlags: 0

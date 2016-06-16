@@ -3,20 +3,25 @@ using System.Collections;
 using Assets.Scripts.StateMachines;
 
 public class CharacterInput : MonoBehaviour {
-    public GameObject CharacterObject;
 
-    private CharacterFlagMachine _flagMachine;
-    private Animator _animator;
+
+    public GameObject MapManager;
+    public GameObject CharacterManager;
+
+
+
+    private MapManager _mapManager;
+    private CharacterManager _characterManager;
+
+
+
     // Use this for initialization
     void Awake () {
-
-	}
-
-    public void SetCharacterObject(GameObject characterObject) {
-        CharacterObject = characterObject;
-        _flagMachine = CharacterObject.GetComponent<CharacterFlagMachine>();
-        _animator = CharacterObject.GetComponent<Animator>();
+        //MapManager = GameObject.Find("MapManager");
+        _mapManager = MapManager.GetComponent<MapManager>();
+        _characterManager = CharacterManager.GetComponent<CharacterManager>();
     }
+
     
     // Update is called once per frame
 	void Update () {
@@ -30,7 +35,7 @@ public class CharacterInput : MonoBehaviour {
 
         if (isTransfer)
         {
-            _flagMachine.Action(CharacterCommand.TransferBegin);
+            _characterManager.PlayerTransfer();
         }
 
         //throw new System.NotImplementedException();
@@ -39,20 +44,21 @@ public class CharacterInput : MonoBehaviour {
     void HandleArrows() {
         var direction = new Vector3(Input.GetAxis("Horizontal"), 0f, Input.GetAxis("Vertical"));
         if (direction.magnitude > 0.01) {
-            _animator.SetBool("isWalking", true);
-            _flagMachine.Action(CharacterCommand.MoveBegin, direction);
+            _characterManager.Player.Walk(direction);
+           // _animator.SetBool("isWalking", true);
+           // _flagMachine.Action(CharacterCommand.MoveBegin, direction);
         }
         else {
-            _animator.SetBool("isWalking", false);
-            _flagMachine.Action(CharacterCommand.MoveEnd);
+            _characterManager.Player.StopWalk();
+           // _animator.SetBool("isWalking", false);
+           // _flagMachine.Action(CharacterCommand.MoveEnd);
         }
     }
 
     void HandleJump() {
         var isJump = Input.GetKeyDown(KeyCode.Space);
         if (isJump) {
-            _animator.SetTrigger("jump");
-            _flagMachine.Action(CharacterCommand.Jump);
+            _characterManager.Player.Jump();
         }
     }
 }

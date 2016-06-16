@@ -16,8 +16,8 @@
         Grounded,
         DragBegin,
         DragEnd,
-        TransferBegin,
-        TransferEnd
+        TransferBegin,   //准备传送
+        TransferEnd      //传送完成
     }
 
 //    public class CharacterTransition {

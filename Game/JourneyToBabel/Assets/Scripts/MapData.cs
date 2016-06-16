@@ -27,6 +27,7 @@ namespace Assets.Scripts {
         //public bool CouldJump;
         public Vector3 OriginPostion;
         public int Id;
+        public int[] Index;
 
         public HashSet<int> PasserBy;  //实时算法用得到，但是那个算法现在不用他
         /*public int layer;
@@ -191,7 +192,7 @@ namespace Assets.Scripts {
             //ShowAroundLayer(20);
         }
 
-        //动态创建最上面一层的方块对象
+        //动态创建最上面一层的方块对象,并且初始化分数和其他信息
         private void CreateLayerObject(Cube[,] top, int layerNum) {
             var scale = MapCubePrefab.transform.localScale;
 
@@ -200,6 +201,7 @@ namespace Assets.Scripts {
                     top[i, j].OriginPostion = new Vector3((i - _halfLength)*scale.x, layerNum*scale.y,
                         (j - _halfLength)*scale.z);
                     top[i, j].Score = layerNum*ScoreBase;
+                    top[i, j].Index = new int[] {i,layerNum,j }; 
                     if (top[i, j].IsValid) {
                         top[i, j].Object =
                             (GameObject) Instantiate(
@@ -415,14 +417,12 @@ namespace Assets.Scripts {
                 _mapData.RemoveAt(0);
         }
 
-        //在某一层得到一个空着的能站的位置
+        //在某一层得到一个空着的能站的位置,用于开始和传送
         public Cube GetStartCube(int layerNum) {
             var currentLayer = _mapData[layerNum];
             //var lastLayer = _mapData[layerNum - 1];
 
             var hole = currentLayer.Hole;
-
-            //TODO 从某一个随机点开始
 
             int start = Random.Range(0, hole.Count);
 
@@ -456,8 +456,18 @@ namespace Assets.Scripts {
             index[0] = (Mathf.RoundToInt(pos.x/scale.x)) + _halfLength;
             index[1] = Mathf.RoundToInt(pos.y/scale.y);
             index[2] = Mathf.RoundToInt(pos.z/scale.z) + _halfWidth;
+
+            if (index[0] < 0 || index[0] > MapLength || index[1] < 0 || index[2] < 0 || index[2] > MapWidth)
+                return null;
+
             return index;
         }
+
+        public Cube GetCubeByPosition(Vector3 pos) {
+            var index = GetIndexByPosition(pos);
+            return index == null ? null : _mapData[index[1]][index[0], index[2]];
+        }
+
 
 
         public Cube GetTargetSuggestionByCharacterCube(Character character) {
@@ -478,22 +488,21 @@ namespace Assets.Scripts {
 
             //找寻接下来周边4+4+4
             Cube result = null;
-            var cubePath = character.CubePath;
             //upLayer
             if (!upLayer[i, j].IsValid) {
                 var resultUp = SearchBetterTarget(upLayer, i, j, ref maxScore, character);
-                Debug.Log("Up" + (resultUp == null));
+                //Debug.Log("Up" + (resultUp == null));
                 if (resultUp != null) result = resultUp;
             }
 
             var resultCurr = SearchBetterTarget(currLayer, i, j, ref maxScore, character);
-            Debug.Log("Curr" + (resultCurr == null));
+            //Debug.Log("Curr" + (resultCurr == null));
 
             if (resultCurr != null) result = resultCurr;
 
             //var resultDown = SearchBetterTarget(downLayer, i, j, ref maxScore, character);
 
-            Cube resultDown = null;
+            //Cube resultDown = null;
             for (byte dir = 0; dir < 4; dir++)
             {
                 var temp = (character.Id + dir) % 4;
@@ -504,10 +513,10 @@ namespace Assets.Scripts {
                 maxScore = cube.Score;
                 result = cube;
             }
-            return result;
+            
 
-            Debug.Log("Down" + (resultDown == null));
-            if (resultDown != null) result = resultDown;
+            //Debug.Log("Down" + (resultDown == null));
+           
 
             //无路可走
             if (result == null) {  

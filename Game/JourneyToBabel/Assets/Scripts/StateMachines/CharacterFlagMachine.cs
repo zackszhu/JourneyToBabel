@@ -11,7 +11,7 @@ public class CharacterFlagMachine : MonoBehaviour {
     [HideInInspector]
     public Vector3 DragReg { get; private set; }
     [HideInInspector]
-    public int TransferReg { get; private set; }
+    public Vector3 TransferReg { get; private set; }
 
     void Awake () {
 	    Flags = new bool[Enum.GetNames(typeof(CharacterProcessState)).Length];
@@ -24,12 +24,13 @@ public class CharacterFlagMachine : MonoBehaviour {
     }
 
     public void Action(CharacterCommand command, Vector3 direction) {
-        Action<Vector3>[] functions = { MoveBegin, MoveEnd, Jump, Jumped, Grounded, DragBegin, DragEnd };
+        Action<Vector3>[] functions = { MoveBegin, MoveEnd, Jump, Jumped, Grounded, DragBegin, DragEnd ,TransferBegin, TransferEnd};
         functions[(int) command](direction);
     }
 
     public void Action(CharacterCommand command) {
-        Action<Vector3>[] functions = { MoveBegin, MoveEnd, Jump, Jumped, Grounded, DragBegin, DragEnd };
+        Action<Vector3>[] functions = { MoveBegin, MoveEnd, Jump, Jumped, Grounded, DragBegin, DragEnd ,TransferBegin ,TransferEnd};
+        //Debug.Log(command);
         functions[(int)command](Vector3.zero);
     }
 
@@ -67,13 +68,14 @@ public class CharacterFlagMachine : MonoBehaviour {
         DragReg = Vector3.zero;
     }
 
-    private void TransferBegin(int layerNum = -1) {
+    private void TransferBegin(Vector3 postition) {
         Flags[(int) CharacterProcessState.Transfer] = true;
-        TransferReg = layerNum;
+        TransferReg = postition;
 
     }
 
-    private void TransferEnd() {
+    private void TransferEnd(Vector3 direction) {
         Flags[(int) CharacterProcessState.Transfer] = false;
+        TransferReg = Vector3.zero;
     }
 }

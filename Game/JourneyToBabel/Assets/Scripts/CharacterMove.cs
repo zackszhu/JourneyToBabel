@@ -1,33 +1,43 @@
-﻿using Assets.Scripts.StateMachines;
+﻿using System.Reflection;
+using Assets.Scripts;
+using Assets.Scripts.StateMachines;
 using UnityEngine;
 
 public class CharacterMove : MonoBehaviour {
     public float Speed; //移动速度
     public float JumpSpeed; //起跳速度
+    public float TransferTime; //传送需要准备的时间
+    
+    //public static float CharacterYOffest = 1.0f - 0.455f;
 
-    public GameObject MapManager;
 
 
-    //private Rigidbody _characteRigidbody;
     private CharacterController _characterController; //角色控制用rigidbody会出现很奇怪的问题
-    private MapManager _mapManager;
+
     private CharacterFlagMachine _flagMachine;
     private Animator _animator;
     private Vector3 previous;
-
+    private float _transferRemainTime;
     private Vector3 _moveVelocity;
+    private Vector3 _tempTagertPosition;
+   
+    //private Cube TransferTargetCube { get; set; }
+
     //  private Vector3 
 
     // Use this for initialization
     private void Awake() {
         //_characteRigidbody = GetComponent<Rigidbody>();
-        MapManager = GameObject.Find("MapManager");
+        //MapManager = GameObject.Find("MapManager");
         _characterController = GetComponent<CharacterController>();
         _flagMachine = GetComponent<CharacterFlagMachine>();
         _animator = GetComponent<Animator>();
         _moveVelocity = Vector3.zero;
-        _mapManager = MapManager.GetComponent<MapManager>();
+        _tempTagertPosition = Vector3.zero;
+
     }
+
+
 
     // Update is called once per frame
     private void Update() {
@@ -51,9 +61,30 @@ public class CharacterMove : MonoBehaviour {
             HandleMovement(_flagMachine.MoveReg);
         }
 
+        if (_flagMachine.Flags[(int) CharacterProcessState.Transfer]) {
+            HandleTransfer(_flagMachine.TransferReg);
+        }
         //Debug.Log("move:"+_moveVelocity);
 
         _characterController.Move(_moveVelocity*Time.deltaTime);
+    }
+
+    private void HandleTransfer(Vector3 tragetPosition) {
+        if (_tempTagertPosition.Equals(Vector3.zero)) {  //设定了位置，还没有开始传送
+            _transferRemainTime = TransferTime;  //传送计时开始
+            _tempTagertPosition = tragetPosition;
+
+        }
+        else {
+            _transferRemainTime -= Time.deltaTime;
+            if (_transferRemainTime < 0) {   //传送准备时间完成，直接传送
+                gameObject.transform.position = _tempTagertPosition;
+                _flagMachine.Action(CharacterCommand.TransferEnd);
+                _tempTagertPosition = Vector3.zero;
+               
+                //_flagMachine.TransferReg = Vector
+            }
+        }
     }
 
     private void HandleMovement(Vector3 direction) {
@@ -61,25 +92,23 @@ public class CharacterMove : MonoBehaviour {
         Move(direction);
     }
 
+    private Vector3 GetCubePosition() {
+        return gameObject.transform.position + CharacterManager.CharacterYOffest;
+    }
+
     private void HandleJump() {
-        if (!_flagMachine.Flags[(int) CharacterProcessState.SJump]) {
-            //_characteRigidbody.AddForce(Vector3.up * JumpSpeed);           
+        if (!_flagMachine.Flags[(int) CharacterProcessState.SJump]) {    
             _moveVelocity.y = JumpSpeed;
-            //var v = _characteRigidbody.velocity;
-            // _characteRigidbody.velocity = new Vector3(v.x, JumpSpeed,v.z);
         }
 
 
         _flagMachine.Action(CharacterCommand.Jumped);
     }
 
-    private void HandleTransfer() {
-    }
 
     private void Turn(Vector3 direction) {
         if (direction.magnitude > 0.1) {
             transform.rotation = Quaternion.LookRotation(direction);
-            //_characteRigidbody.MoveRotation(Quaternion.LookRotation(direction));
         }
     }
 
@@ -90,7 +119,6 @@ public class CharacterMove : MonoBehaviour {
     }
 
     private void OnCollisionEnter(Collision collision) {
-        //Debug.Log("coll:"+Time.time + _characteRigidbody.velocity);
         if (collision.gameObject.tag == "GameMap") {
             _flagMachine.Action(CharacterCommand.Grounded);
         }

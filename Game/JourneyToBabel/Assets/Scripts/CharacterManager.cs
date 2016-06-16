@@ -17,7 +17,7 @@ public class CharacterManager : MonoBehaviour {
     public GameObject InputManager;
     public GameObject MapManager;
     public int ComputerNumber = 10;
-    public float CharacterYOffest = 1.0f - 0.455f;  //人的坐标和地图坐标不一样！
+    public static Vector3 CharacterYOffest = new Vector3(0,1.0f - 0.455f,0);  //人的坐标和地图坐标不一样！
     // Use this for initialization
     private MapManager _mapManager;
     public float AIComputedeltaTime;  //每隔多少时间算一下ai
@@ -44,9 +44,8 @@ public class CharacterManager : MonoBehaviour {
 
 
     private Character CreateCharacter(int layerNum) {
-        var c = _mapManager.getStartCube(layerNum);
-        var temp = c.OriginPostion;
-        temp.y -= CharacterYOffest;
+        var c = _mapManager.GetStartCube(layerNum);
+        var temp = c.OriginPostion - CharacterYOffest;
         //Debug.Log("startPos" + temp);
         var o = Instantiate(CharacterCubePrefab, temp, Quaternion.identity) as GameObject;
         
@@ -55,9 +54,11 @@ public class CharacterManager : MonoBehaviour {
     }
 
     public void CreatePlayer(int layerNum) {
-        var character = CreateCharacter(layerNum);
+        var character = CreateCharacter(layerNum);     
         character.Type = Character.TYPE.Player;
-        InputManager.GetComponent<CharacterInput>().SetCharacterObject(character.Object);
+        Player = character;
+
+        //InputManager.GetComponent<CharacterInput>().Player = character;
     }
     
     //创建一个电脑
@@ -74,42 +75,69 @@ public class CharacterManager : MonoBehaviour {
 
 	// Update is called once per frame
     void Update() {
-        foreach (var computers in _computers) {
-            var currPos = computers.Object.transform.position;
-            currPos.y += CharacterYOffest;
+        //HandlePlayer();
+        HandleAI();
+    }
 
-            var gap = computers.ExpectedCube.OriginPostion - currPos;
-            Debug.Log("checkGap"+ gap);
-            if (gap.magnitude < 0.1) {
-                //finish move, find a new target cube
-               
-                computers.Animator.SetBool("isWalking", false);
-                computers.FlagMachine.Action(CharacterCommand.MoveEnd);
-                var temp = _mapManager.GetTargetSuggestionByCharacterCube(computers);
-                
 
-                if (temp == null) {
+
+
+    void HandleAI() {
+        foreach (var computer in _computers) {
+            if (computer.FlagMachine.Flags[(int) CharacterProcessState.Transfer]) continue ; 
+
+            var currPos = computer.Object.transform.position + CharacterYOffest;
+
+            var gap = computer.ExpectedCube.OriginPostion - currPos;
+            //Debug.Log("Now" + currPos + "Expected" + computer.ExpectedCube.OriginPostion);
+            if (gap.magnitude < 0.1)  //到达了预期方格
+            {
+                var temp = _mapManager.GetTargetSuggestionByCharacter(computer);
+                if (temp == null) //没有好的路可走
+                {
+                    Cube targetCube = SearchRestartCube(computer);  //寻找下一个出生点
+                    computer.Transfer(targetCube);
+                    computer.StopWalk();
                     return;
                 }
                 else {
-                    computers.ExpectedCube = temp;
-                    computers.CubePath.Add(temp.Id);
+                    computer.ExpectedCube = temp;
+                    computer.CubePath.Add(temp.Id);
                 }
             }
             else {
-                if (gap.y > 0.2) {
-                    computers.Animator.SetTrigger("jump");
-                    computers.FlagMachine.Action(CharacterCommand.Jump);
+                if (gap.y > 0.2)
+                {
+                    /*
+                    computer.Animator.SetTrigger("jump");
+                    computer.FlagMachine.Action(CharacterCommand.Jump);*/
+                    computer.Jump();
                 }
                 gap.y = 0;
-                computers.Animator.SetBool("isWalking", true);
-                computers.FlagMachine.Action(CharacterCommand.MoveBegin, gap);
+                computer.Walk(gap);
 
-
+//              computers.Animator.SetBool("isWalking", true);
+//              computers.FlagMachine.Action(CharacterCommand.MoveBegin, gap);
             }
-
-
         }
+    }
+
+
+
+
+
+
+    public Cube SearchRestartCube(Character character) {
+        var LayerNum = character.ExpectedCube.Index[1];
+        //TODO 动态区域判断
+
+        return _mapManager.GetStartCube(LayerNum);
+    }
+
+
+    public void PlayerTransfer() {
+        var targetCube = SearchRestartCube(Player);
+        Player.Transfer(targetCube);
     }
 
     /*
@@ -156,47 +184,3 @@ public class CharacterManager : MonoBehaviour {
     
 }
 
-public class Character {
-
-    public enum TYPE {
-        Player = 0,
-        Friend = 1,
-        Enemy = 2,
-        UnKnown = 3     //待分配的意思
-    }
-
-    private static int _characterCount = 0;
-    
-    public GameObject Object;
-    public TYPE Type;
-    public int Id;
-
-    //public float AITime;
-    public Vector3 Suggestion;
-    public CharacterFlagMachine FlagMachine;
-    public Animator Animator;
-   
-    //public Vector3 Preposition;
-
-    public Cube ExpectedCube;
-    //public List<Cube> CubePath;
-    public HashSet<int> CubePath;
-
-
-    public Character(GameObject o, Cube c) {
-        Object = o;
-        Type = TYPE.UnKnown;
-        FlagMachine = o.GetComponent<CharacterFlagMachine>();
-        Animator = o.GetComponent<Animator>();
-        ExpectedCube = c;
-        //Preposition = new Vector3(0,0,0);
-        CubePath = new HashSet<int>();
-        Id = _characterCount;
-        _characterCount ++;
-    }
-
-    public void Restart(Cube startCube) {
-        CubePath.Clear();
-        CubePath.Add(startCube.Id);
-    }
-}
