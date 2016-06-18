@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using System.Collections;
-using UnityEditor;
 
 public class CameraController : MonoBehaviour {
 
@@ -23,7 +22,6 @@ public class CameraController : MonoBehaviour {
 
     // Use this for initialization
 	void Awake () {
-        HeadOffset = new Vector3(0,1,0);
 	    _characterManager = CharacterManager.GetComponent<CharacterManager>();
 	}
 	
@@ -40,7 +38,7 @@ public class CameraController : MonoBehaviour {
         float movedis = moveSpeed*Time.deltaTime;
         if (dis.magnitude < movedis) {
             transform.position = _expectedViewPoint;
-            _viewdirection = _expectedViewPoint;
+            _viewdirection = _expectedViewDirection;
         }
         else {
             transform.position = transform.position + dis.normalized*movedis;

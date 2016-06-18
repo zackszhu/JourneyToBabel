@@ -7,6 +7,7 @@ public class CharacterMove : MonoBehaviour {
     public float Speed; //移动速度
     public float JumpSpeed; //起跳速度
     public float TransferTime; //传送需要准备的时间
+    public bool Moveable;
     
     //public static float CharacterYOffest = 1.0f - 0.455f;
 
@@ -88,8 +89,10 @@ public class CharacterMove : MonoBehaviour {
     }
 
     private void HandleMovement(Vector3 direction) {
-        Turn(direction);
-        Move(direction);
+        if (Moveable) {
+            Turn(direction);
+            Move(direction);
+        }
     }
 
     private Vector3 GetCubePosition() {
@@ -113,7 +116,7 @@ public class CharacterMove : MonoBehaviour {
     }
 
     private void Move(Vector3 direction) {
-        Vector3 horiV = direction.normalized*Speed;
+        Vector3 horiV = direction.normalized*Speed * Time.timeScale;
         _moveVelocity.x = horiV.x;
         _moveVelocity.z = horiV.z;
     }

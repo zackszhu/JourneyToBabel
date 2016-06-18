@@ -34,8 +34,7 @@ public class CharacterInput : MonoBehaviour {
     void HandleTransfer() {
         var isTransfer = Input.GetKeyDown(KeyCode.T);
 
-        if (isTransfer)
-        {
+        if (isTransfer) {
             _characterManager.PlayerTransfer();
         }
 
@@ -45,14 +44,10 @@ public class CharacterInput : MonoBehaviour {
     void HandleArrows() {
         var direction = new Vector3(Input.GetAxis("Horizontal"), 0f, Input.GetAxis("Vertical"));
 
-
-
-
         if (direction.magnitude > 0.01) {
             Vector3 CameraDirection = -_cameraController.Viewdirection;
             Vector3 UpDown = direction.z*CameraDirection;
             Vector3 LeftRight = direction.x* (Vector3.Cross(CameraDirection,Vector3.down));
-
             _characterManager.Player.Walk(UpDown + LeftRight);
            // _animator.SetBool("isWalking", true);
            // _flagMachine.Action(CharacterCommand.MoveBegin, direction);

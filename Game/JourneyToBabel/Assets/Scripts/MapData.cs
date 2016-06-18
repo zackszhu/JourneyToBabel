@@ -1,29 +1,36 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Security.Permissions;
-using System.Security.Policy;
-using System.Text;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.Assertions.Must;
-using UnityEngine.SocialPlatforms.Impl;
 using Debug = UnityEngine.Debug;
 using Random = UnityEngine.Random;
 
 namespace Assets.Scripts {
+
+
+
     public class Cube {
-        private static int CubeId = 0;
+        
+        private static int _cubeId = 0;
+
+        public enum CubeType {
+
+            Explode = 0,
+            Speedup,
+            Speeddown,
+            Frozen,
+            Normal
+        }; 
+
+
         public bool IsValid;
         public bool IsEdge; //optimize performance
-//        public HashSet<byte> FromPath; //以该方块为目标的路径
-//        public HashSet<byte> ToPath; //以该方块为起点的路径 ， 路径指的是从下方到上方运动的方向,就是0-7
         public GameObject Object; //对应的游戏方块对象。
         public int Score; //某个点能往上走就能加分，往旁边和往上都不行了，就负分表示此路不通，0表示未探索过的。
         public bool Pattern;
-        public bool GoodHole;
+        public bool GoodHole;  //一个能占的hole
+        public CubeType Type;
         //public bool CouldJump;
         public Vector3 OriginPostion;
         public int Id;
@@ -38,20 +45,16 @@ namespace Assets.Scripts {
             IsValid = true;
             IsEdge = false;
             PasserBy = new HashSet<int>();
-            // FromPath = new HashSet<byte>();
             Object = null;
-            //ToPath = new HashSet<byte>();
             Score = 0;
             GoodHole = false;
             //CouldJump = false;
-            Id = CubeId;
-            CubeId ++;
+            Id = _cubeId;
+            _cubeId++;
         }
 
         public void InValid(bool isEdge = true) {
             IsValid = false;
-            //FromPath.Clear();
-            //ToPath.Clear();
             this.IsEdge = isEdge;
         }
 
@@ -64,7 +67,7 @@ namespace Assets.Scripts {
         }
     }
 
-    public class Layer {
+    public class Layer : MonoBehaviour{
         public GameObject LayerObj;
         public Cube[,] LayerData;
         public List<int[]> Hole;
@@ -94,6 +97,25 @@ namespace Assets.Scripts {
         public Cube this[int index1, int index2] {
             get { return LayerData[index1, index2]; }
         }
+
+        public void Drop() {
+            foreach (var cube in LayerData) {
+                StartCoroutine(DropCube(cube));
+            }
+        }
+
+        IEnumerator DropCube(Cube c) {
+            var startTime = Time.time;
+            var downSide = new Vector3(0, 0, 0);
+            while (true) {
+                c.Object.transform.position += downSide * Time.timeScale;
+                downSide.y += 9.8f;
+                if (Time.time - startTime > 3f) {
+                    GameObject.Destroy(c.Object);
+                }
+                yield break;
+            }
+        }
     }
 
     class MapData : ScriptableObject {
@@ -103,44 +125,52 @@ namespace Assets.Scripts {
         public GameObject MapCubeParent;
         //public GameObject
         //private GameObject _mapCubePrefabs;
+       // public int[] Mapint
 
 
         private int _layerCount = 1;
         private List<Layer> _mapData;
-
+        private CubeTypeConfig _cubeConfig;
 
         public int LayerCount {
             get { return _layerCount; }
             set { _layerCount = value; }
         }
 
-        public int StartLayerNum { get; set; }
+        private int _startLayerNum;
+
+        public int StartLayerNum {
+            get {
+                return _startLayerNum;
+            }
+            set { _startLayerNum = value > 0 ? value : 0; }
+        }
         public int EndLayerNum { get; set; }
 
         private readonly int ScoreBase = 10;
         private readonly int _halfLength;
         private readonly int _halfWidth;
-        private readonly int[,] _round4 = {{0, 1, 10}, {1, 0, 10}, {0, -1, -1}, {-1, 0, -1}};
-        private readonly int[,] _round8 = {{0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}, {-1, 0}, {-1, 1}};
+        private readonly int[,] _round4 = { { 0, 1, 10 }, { 1, 0, 10 }, { 0, -1, -1 }, { -1, 0, -1 } };
+        private readonly int[,] _round8 = { { 0, 1 }, { 1, 1 }, { 1, 0 }, { 1, -1 }, { 0, -1 }, { -1, -1 }, { -1, 0 }, { -1, 1 } };
 
-        public MapData(int length, int width, GameObject mapCubePrefab, GameObject mapCubeParent) {
+        public MapData(int length, int width, GameObject mapCubePrefab, GameObject mapCubeParent, CubeTypeConfig cubeTypeConfig) {
             this.MapLength = length;
             this.MapWidth = width;
             this.LayerCount = 1;
             this.MapCubePrefab = mapCubePrefab;
             this.MapCubeParent = mapCubeParent;
-            this._halfLength = MapLength/2;
-            this._halfWidth = MapWidth/2;
-            this.StartLayerNum = 0;
+            this._halfLength = MapLength / 2;
+            this._halfWidth = MapWidth / 2;
+            this._startLayerNum = 0;
             this.EndLayerNum = 10;
-
+            this._cubeConfig = cubeTypeConfig;
             InitBottomLayer();
         }
 
         private void InitBottomLayer() {
             var bottom = GetDefaultLayer();
             CreateLayerObject(bottom, 0);
-            _mapData = new List<Layer> {new Layer(0, bottom, MapCubeParent, new List<int[]>())};
+            _mapData = new List<Layer> { new Layer(0, bottom, MapCubeParent, new List<int[]>()) };
         }
 
 
@@ -170,7 +200,7 @@ namespace Assets.Scripts {
             for (var x = 1; x < MapLength - 1; x++) {
                 for (var y = 1; y < MapWidth - 1; y++) {
                     if (IsEdge(x, y, top)) {
-                        edge.Add(new int[] {x, y});
+                        edge.Add(new int[] { x, y });
                         //InQueue[x, y] = true;
                         top[x, y].IsEdge = true;
                     }
@@ -192,25 +222,29 @@ namespace Assets.Scripts {
             //ShowAroundLayer(20);
         }
 
+
+
         //动态创建最上面一层的方块对象,并且初始化分数和其他信息
         private void CreateLayerObject(Cube[,] top, int layerNum) {
             var scale = MapCubePrefab.transform.localScale;
 
             for (int i = 0; i < MapLength; i++)
                 for (int j = 0; j < MapWidth; j++) {
-                    top[i, j].OriginPostion = new Vector3((i - _halfLength)*scale.x, layerNum*scale.y,
-                        (j - _halfLength)*scale.z);
-                    top[i, j].Score = layerNum*ScoreBase;
-                    top[i, j].Index = new int[] {i,layerNum,j }; 
+                    top[i, j].OriginPostion = new Vector3((i - _halfLength) * scale.x, layerNum * scale.y,
+                        (j - _halfLength) * scale.z);
+                    top[i, j].Score = layerNum * ScoreBase;
+                    top[i, j].Index = new int[] { i, layerNum, j };              
+
                     if (top[i, j].IsValid) {
                         top[i, j].Object =
-                            (GameObject) Instantiate(
+                            (GameObject)Instantiate(
                                 MapCubePrefab,
-                                //new Vector3((i - Lmid) , layerNum , (j - Wmid)),
                                 top[i, j].OriginPostion,
                                 Quaternion.identity);
+                        if (top[i,j].IsEdge)
+                            SetCubeTypeRandomly(top[i, j]);
                     }
-                   
+
                 }
         }
 
@@ -222,11 +256,13 @@ namespace Assets.Scripts {
             }
 
 
-            for (int l = StartLayerNum; l < EndLayerNum; l++) {
+            for (int l = _startLayerNum; l < EndLayerNum; l++) {
                 _mapData[l].LayerObj.SetActive(true);
                 //ShowLayer(t, Mathf.Abs(l - centerLayer) <= areaSize);
             }
-            int i = StartLayerNum - 1;
+
+            //TODO 层的消失动画
+            int i = _startLayerNum - 1;
             while (i >= 0 && _mapData[i].LayerObj.activeSelf) {
                 _mapData[i].LayerObj.SetActive(false);
                 i--;
@@ -234,6 +270,7 @@ namespace Assets.Scripts {
 
             i = EndLayerNum;
             while (i < LayerCount && _mapData[i].LayerObj.activeSelf) {
+                // _mapData[i].Drop();
                 _mapData[i].LayerObj.SetActive(false);
                 i++;
             }
@@ -308,7 +345,7 @@ namespace Assets.Scripts {
                 holes.Add(lowPriority[index]);
                 top[x, y].GoodHole = lastLayer[x, y].IsValid; //这个空的下方他不是空
                 top[x, y].InValid();
-                HoleCount --;
+                HoleCount--;
 
                 lowPriority.RemoveAt(index);
             }
@@ -427,7 +464,7 @@ namespace Assets.Scripts {
             int start = Random.Range(0, hole.Count);
 
             for (int i = 0; i < hole.Count; i++) {
-                var t = (i + start)%hole.Count;
+                var t = (i + start) % hole.Count;
                 var cube = currentLayer[hole[t][0], hole[t][1]];
                 if (cube.GoodHole) {
                     return cube;
@@ -439,7 +476,7 @@ namespace Assets.Scripts {
 
         private Vector3 GetPostionByIndex(int x, int y, int z) {
             var scale = MapCubePrefab.transform.localScale;
-            return new Vector3((x - _halfLength)*scale.x, y*scale.y, (z - _halfLength)*scale.z);
+            return new Vector3((x - _halfLength) * scale.x, y * scale.y, (z - _halfLength) * scale.z);
             //return new Vector3(x*scale.x, y* scale.y, z*scale.z);
         }
 
@@ -453,9 +490,9 @@ namespace Assets.Scripts {
             var index = new int[3];
             var scale = MapCubePrefab.transform.localScale;
             //Debug.Log(pos);
-            index[0] = (Mathf.RoundToInt(pos.x/scale.x)) + _halfLength;
-            index[1] = Mathf.RoundToInt(pos.y/scale.y);
-            index[2] = Mathf.RoundToInt(pos.z/scale.z) + _halfWidth;
+            index[0] = (Mathf.RoundToInt(pos.x / scale.x)) + _halfLength;
+            index[1] = Mathf.RoundToInt(pos.y / scale.y);
+            index[2] = Mathf.RoundToInt(pos.z / scale.z) + _halfWidth;
 
             if (index[0] < 0 || index[0] > MapLength || index[1] < 0 || index[2] < 0 || index[2] > MapWidth)
                 return null;
@@ -471,19 +508,25 @@ namespace Assets.Scripts {
 
 
         public Cube GetTargetSuggestionByCharacterCube(Character character) {
-            var currCube = character.ExpectedCube;
+            var currCube = character.CurrentCube;
 
             int[] index = GetIndexByPosition(currCube.OriginPostion);
             var LayerNum = index[1];
-            if (LayerNum <= StartLayerNum || LayerNum > EndLayerNum - 1 ) return null;
-            var upLayer = _mapData[LayerNum +1];
+
+          
+
+            if (LayerNum <= _startLayerNum) return null;
+            if (LayerNum > LayerCount - 2) return currCube;
+
+
+
+            var upLayer = _mapData[LayerNum + 1];
             var currLayer = _mapData[LayerNum];
-            var downLayer = _mapData[LayerNum - 1];  
+            var downLayer = _mapData[LayerNum - 1];
 
             int i = index[0];
             int j = index[2];
-            Debug.Log("index:" + i + ":" + j + ":" + "layer:" + LayerNum);
-            int maxScore = StartLayerNum*ScoreBase-1;
+            int maxScore = _startLayerNum * ScoreBase - 1;
 
 
             //找寻接下来周边4+4+4
@@ -503,38 +546,36 @@ namespace Assets.Scripts {
             //var resultDown = SearchBetterTarget(downLayer, i, j, ref maxScore, character);
 
             //Cube resultDown = null;
-            for (byte dir = 0; dir < 4; dir++)
-            {
+            for (byte dir = 0; dir < 4; dir++) {
                 var temp = (character.Id + dir) % 4;
                 var ti = i + _round4[temp, 0];
                 var tj = j + _round4[temp, 1];
                 var cube = downLayer[ti, tj];
-                if (!cube.GoodHole || !cube.IsHole() || cube.Score <= maxScore || character.CubePath.Contains(cube.Id) || currLayer[ti,tj].IsValid) continue;
+                if (!cube.GoodHole || !cube.IsHole() || cube.Score <= maxScore || character.CubePath.Contains(cube.Id) || currLayer[ti, tj].IsValid) continue;
                 maxScore = cube.Score;
                 result = cube;
             }
-            
+
 
             //Debug.Log("Down" + (resultDown == null));
-           
+
 
             //无路可走
-            if (result == null) {  
+            if (result == null) {
                 currCube.Score = 0;
                 return null;
             }
-            
+
             //无好路可走
             if (maxScore < currCube.Score) {
                 currCube.Score = maxScore;
-            } 
+            }
             return result;
         }
 
         private Cube SearchBetterTarget(Layer layer, int i, int j, ref int maxScore, Character character) {
             Cube result = null;
-            for (byte dir = 0; dir < 4; dir++)
-            {
+            for (byte dir = 0; dir < 4; dir++) {
                 var temp = (character.Id + dir) % 4;
                 var ti = i + _round4[temp, 0];
                 var tj = j + _round4[temp, 1];
@@ -596,7 +637,7 @@ namespace Assets.Scripts {
             else return result; //下面也无路可走
 
             // 水平修正
-            var targetPos = GetPostionByIndex(i + (int) result.x, LayerNum + (int) result.y, j + (int) result.z);
+            var targetPos = GetPostionByIndex(i + (int)result.x, LayerNum + (int)result.y, j + (int)result.z);
 
             var direction = targetPos - pos;
             direction.y = result.y;
@@ -607,7 +648,7 @@ namespace Assets.Scripts {
             int result = -1;
             int maxScore = -1;
             for (byte dir = 0; dir < 8; dir++) {
-                var temp = (characterId + dir)%8;   //TODO ->4
+                var temp = (characterId + dir) % 8;   //TODO ->4
 
                 var tx = x + _round8[temp, 0];
                 var ty = y + _round8[temp, 1];
@@ -628,7 +669,7 @@ namespace Assets.Scripts {
             int result = -1;
             int maxScore = -1;
             for (byte dir = 0; dir < 4; dir++) {
-                var temp = (characterId + dir)%4;
+                var temp = (characterId + dir) % 4;
 
                 var tx = x + _round4[temp, 0];
                 var ty = y + _round4[temp, 1];
@@ -648,7 +689,7 @@ namespace Assets.Scripts {
             int result = -1;
             int maxScore = -100;
             for (byte dir = 0; dir < 4; dir++) {
-                var temp = (characterId + dir)%4;
+                var temp = (characterId + dir) % 4;
 
                 var tx = x + _round4[temp, 0];
                 var ty = y + _round4[temp, 1];
@@ -674,6 +715,63 @@ namespace Assets.Scripts {
                 }
             }
             return result;
+        }*/
+
+        private Cube.CubeType GetRandomCubeType() {
+            float r = Random.value;
+            for (int i = 0; i < 4; i++) {
+                r -= _cubeConfig.CubeTypeRatio[i];
+                if (r < 0)
+                    return (Cube.CubeType) i;
+            }            
+            return Cube.CubeType.Normal;
+        }
+
+        private void SetCubeTypeRandomly(Cube cube) {
+            cube.Type = GetRandomCubeType();
+            var obj = cube.Object;
+            switch (cube.Type) {
+                case Cube.CubeType.Explode:
+                    
+                    cube.Score -= 10;
+                    obj.AddComponent<CubeExplode>();
+                    obj.GetComponent<CubeExplode>().Particle = _cubeConfig.Particle;
+                    obj.GetComponent<CubeExplode>().Work();
+                    break;
+                case Cube.CubeType.Speedup:
+                    cube.Score += 10;
+                    obj.AddComponent<SpeedAlter>();
+                    obj.GetComponent<SpeedAlter>().AlteredSpeed = _cubeConfig.SpeedUp;
+                    obj.GetComponent<SpeedAlter>().Work();
+                    break;
+                case Cube.CubeType.Speeddown:
+                    cube.Score -= 5;
+                    obj.AddComponent<SpeedAlter>();
+                    obj.GetComponent<SpeedAlter>().AlteredSpeed = _cubeConfig.SpeedDown;
+                    obj.GetComponent<SpeedAlter>().Work();
+                    break;
+                case Cube.CubeType.Frozen:
+                    cube.Score -= 20;
+                    obj.AddComponent<FreezeTrap>();
+                    obj.GetComponent<FreezeTrap>().FreezeDuration = _cubeConfig.FreezingDuration;
+                    obj.GetComponent<FreezeTrap>().Work();
+                    break;
+                case Cube.CubeType.Normal:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        /*
+        public void SetCubeTypeRatio(float[] cubeTypeRatio) {
+            if (cubeTypeRatio.Sum() > 1) {
+                throw new UnityException("Sum of cube Type Ratios should be less than 1.0");
+            }
+
+            for (int i = 0; i < 4; i++) {
+                _cubeTypeRatio[i] = cubeTypeRatio[i];
+            }
         }*/
     }
 }
