@@ -18,7 +18,8 @@ public class SpeedAlter : MonoBehaviour {
             GetComponent<MeshRenderer>().material.SetColor("_Color", new Color(1f, 1f, 0f));
         }
         else {
-            GetComponent<MeshRenderer>().material.SetColor("_Color", new Color(1, 1, 1));
+            
+            GetComponent<MeshRenderer>().material.SetColor("_Color", GetComponent<ColorSelf>().Color);
         }
         _worked = true;
     }

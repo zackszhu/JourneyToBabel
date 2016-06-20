@@ -1,16 +1,15 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using System.Collections;
 
 public class FreezeTrap : MonoBehaviour {
     public float FreezeDuration;
 
     private Color _freezingColor;
-    private Color _originalColor;
     private bool _worked;
 
     void Awake() {
         _freezingColor = new Color(76/255f, 114/255f, 188/255f);
-        _originalColor = new Color(101 / 255f, 101 / 255f, 101 / 255f);
         GetComponent<MeshRenderer>().material.SetColor("_Color", _freezingColor);
         _worked = false;
     }
@@ -31,9 +30,16 @@ public class FreezeTrap : MonoBehaviour {
         }
         cm.Moveable = false;
         yield return new WaitForSeconds(FreezeDuration);
-        cm.Moveable = true;
-        foreach (var componentInChild in cm.GetComponentsInChildren<SkinnedMeshRenderer>()) {
-            componentInChild.material.SetColor("_Color", _originalColor);
+        try {
+            cm.Moveable = true;
+            foreach (var componentInChild in cm.GetComponentsInChildren<SkinnedMeshRenderer>())
+            {
+                componentInChild.material.SetColor("_Color", cm.GetComponent<ColorSelf>().Color);
+            }
         }
+        catch (Exception) {
+            Debug.Log("Freeze Error");
+        }
+
     }
 }

@@ -736,25 +736,30 @@ namespace Assets.Scripts {
                     cube.Score -= 10;
                     obj.AddComponent<CubeExplode>();
                     obj.GetComponent<CubeExplode>().Particle = _cubeConfig.Particle;
+
                     obj.GetComponent<CubeExplode>().Work();
+                    obj.GetComponent<ColorSelf>().Color = new Color(1, 1, 1);
                     break;
                 case Cube.CubeType.Speedup:
                     cube.Score += 10;
                     obj.AddComponent<SpeedAlter>();
                     obj.GetComponent<SpeedAlter>().AlteredSpeed = _cubeConfig.SpeedUp;
                     obj.GetComponent<SpeedAlter>().Work();
+                    obj.GetComponent<ColorSelf>().Color = new Color(1f, 1f, 0f);
                     break;
                 case Cube.CubeType.Speeddown:
                     cube.Score -= 5;
                     obj.AddComponent<SpeedAlter>();
                     obj.GetComponent<SpeedAlter>().AlteredSpeed = _cubeConfig.SpeedDown;
                     obj.GetComponent<SpeedAlter>().Work();
+                    obj.GetComponent<ColorSelf>().Color = new Color(0.5f, 0.5f, 0.5f);
                     break;
                 case Cube.CubeType.Frozen:
                     cube.Score -= 20;
                     obj.AddComponent<FreezeTrap>();
                     obj.GetComponent<FreezeTrap>().FreezeDuration = _cubeConfig.FreezingDuration;
                     obj.GetComponent<FreezeTrap>().Work();
+                    obj.GetComponent<ColorSelf>().Color = new Color(76/255f, 114/255f, 188/255f);
                     break;
                 case Cube.CubeType.Normal:
                     break;

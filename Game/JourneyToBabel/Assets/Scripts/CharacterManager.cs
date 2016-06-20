@@ -92,8 +92,16 @@ public class CharacterManager : MonoBehaviour {
     }
 
     public void CreateComputer(int layerNum) {
-        var character = CreateCharacter(layerNum, GetTypeRandomly());
-        _computers.Add(character);
+        try
+        {
+            var character = CreateCharacter(layerNum, GetTypeRandomly());
+            _computers.Add(character);
+        }
+        catch (Exception)
+        {
+            Debug.Log("CreateComputerError");  //自己测试没有碰到过创建失败的情况
+            return;
+        }
     }
 
 
@@ -116,6 +124,22 @@ public class CharacterManager : MonoBehaviour {
         HandleAI();
         SupplyComputer();
     }
+    private int GetLayerNum(Character c)
+    {
+        try
+        {
+            return GetLayerNum(c.Object);
+        }
+        catch (Exception)
+        {
+            return -1;
+        }
+    }
+
+    private int GetLayerNum(GameObject obj)
+    {
+        return (Mathf.RoundToInt(obj.transform.position.y + CharacterYOffest.y));
+    }
 
     private void CreateAI() {
     }
@@ -124,39 +148,44 @@ public class CharacterManager : MonoBehaviour {
         SetCurrentCube(Player);
         if (Player.IsDead) {
             Debug.Log("Player is Dead");
-            Time.timeScale = 0; //死亡时候游戏暂停
+            GameObject.FindWithTag("GameController").SendMessage("Die");
+//            Time.timeScale = 0; //死亡时候游戏暂停
 
             return;
         }
-        try {
-            _mapManager.GenerateMapUpper(Mathf.RoundToInt(Player.CurrentCube.OriginPostion.y));
-        }
-        catch (Exception) {
-            Player.IsDead = true;
-            return;
-        }
-        
-        
-    
+        _mapManager.GenerateMapUpper(GetLayerNum(Player));
+
+
         //Player.ExpectedCube = _mapManager.GetCubeByPosition(Player.Object.transform.position + CharacterYOffest);
     }
 
 
     bool SetCurrentCube(Character character) {
         //设置失败一般就是死了
-        try {
+        if (character.IsDead) return false;
+        try
+        {
             character.CurrentCube = _mapManager.GetCubeByPosition(character.Object.transform.position + CharacterYOffest);
-            if (character.CurrentCube.Index[1] <= _mapManager.GetStartLayerNum()) {
+
+            if (character.CurrentCube.Index[1] < _mapManager.GetStartLayerNum())
+            {
                 character.IsDead = true;
                 character.CurrentCube = null;
             }
         }
-        catch (Exception) {
+        catch (Exception)
+        {
             //死了
-            character.IsDead = true;
+            //character.IsDead = true;
+            var layNum = GetLayerNum(character);
+            if (layNum < _mapManager.GetStartLayerNum())
+                character.IsDead = true;
+
             character.CurrentCube = null;
             return false;
         }
+
+
         return true;
     }
 
@@ -166,6 +195,7 @@ public class CharacterManager : MonoBehaviour {
 
         Destroy(character.Object);
         character.Object = null;
+        character.CurrentCube = null;
         switch (character.Type) {
             case Character.TYPE.Player:
                 break;
@@ -189,11 +219,12 @@ public class CharacterManager : MonoBehaviour {
             if (computer.FlagMachine.Flags[(int) CharacterProcessState.Transfer]) continue;
             SetCurrentCube(computer);
 
-            if (computer.IsDead) {
+            if (computer.CurrentCube == null)
+            {
                 DestoryCharacter(computer);
                 continue;
             }
-            
+
             if (Player.CurrentCube!=null && computer.CurrentCube.Id == Player.CurrentCube.Id) {
                 //Debug.Log("In");
                 playerCollided = true;
@@ -248,19 +279,24 @@ public class CharacterManager : MonoBehaviour {
             Player.Object.GetComponent<CharacterMove>().Speed = _playerOriginalSpeed;
         }
 
-        _computers.RemoveAll(character => character.IsDead); //真正删掉所有死的
+        _computers.RemoveAll(character => character.CurrentCube == null);
     }
 
 
-    public Cube SearchRestartCube(Character character) {
+    public Cube SearchRestartCube(Character character)
+    {
         var LayerNum = character.CurrentCube.Index[1];
         return _mapManager.GetStartCube(LayerNum);
     }
 
 
-    public void PlayerTransfer() {
-        var targetCube = SearchRestartCube(Player);
-        Player.Transfer(targetCube);
+    public void PlayerTransfer()
+    {
+        if (Player.CurrentCube != null)
+        {
+            var targetCube = SearchRestartCube(Player);
+            Player.Transfer(targetCube);
+        }
     }
 }
 
