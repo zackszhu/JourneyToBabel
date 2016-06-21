@@ -8,6 +8,8 @@ public class CharacterMove : MonoBehaviour {
     public float JumpSpeed; //起跳速度
     public float TransferTime; //传送需要准备的时间
     public bool Moveable;
+
+    public AudioClip WalkAudioClip;
     
     //public static float CharacterYOffest = 1.0f - 0.455f;
 
@@ -60,6 +62,9 @@ public class CharacterMove : MonoBehaviour {
 
         if (_flagMachine.Flags[(int) CharacterProcessState.Walk]) {
             HandleMovement(_flagMachine.MoveReg);
+            if (_characterController.isGrounded && WalkAudioClip && !GetComponent<AudioSource>().isPlaying) {
+                GetComponent<AudioSource>().PlayOneShot(WalkAudioClip);
+            }
         }
 
         if (_flagMachine.Flags[(int) CharacterProcessState.Transfer]) {
@@ -78,11 +83,16 @@ public class CharacterMove : MonoBehaviour {
         }
         else {
             _transferRemainTime -= Time.deltaTime;
+            transform.localScale = Vector3.Lerp(new Vector3(0.075f, 0.05f, 0.075f), Vector3.zero,
+                (1 - _transferRemainTime)/TransferTime);
+            transform.localRotation = Quaternion.Lerp(Quaternion.identity, Quaternion.Euler(new Vector3(0, 180f, 0)),
+                (1 - _transferRemainTime)/TransferTime);
             if (_transferRemainTime < 0) {   //传送准备时间完成，直接传送
                 gameObject.transform.position = _tempTagertPosition;
                 _flagMachine.Action(CharacterCommand.TransferEnd);
                 _tempTagertPosition = Vector3.zero;
-               
+                transform.localScale = new Vector3(0.075f, 0.05f, 0.075f);
+                transform.localRotation = Quaternion.identity;
                 //_flagMachine.TransferReg = Vector
             }
         }
@@ -103,8 +113,6 @@ public class CharacterMove : MonoBehaviour {
         if (!_flagMachine.Flags[(int) CharacterProcessState.SJump]) {    
             _moveVelocity.y = JumpSpeed;
         }
-
-
         _flagMachine.Action(CharacterCommand.Jumped);
     }
 

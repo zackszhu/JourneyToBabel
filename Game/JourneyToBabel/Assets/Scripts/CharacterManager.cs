@@ -150,7 +150,7 @@ public class CharacterManager : MonoBehaviour {
             Debug.Log("Player is Dead");
             GameObject.FindWithTag("GameController").SendMessage("Die");
 //            Time.timeScale = 0; //死亡时候游戏暂停
-
+            this.enabled = false;
             return;
         }
         _mapManager.GenerateMapUpper(GetLayerNum(Player));
@@ -175,7 +175,7 @@ public class CharacterManager : MonoBehaviour {
         }
         catch (Exception)
         {
-            //死了
+            //哎呀 死啦
             //character.IsDead = true;
             var layNum = GetLayerNum(character);
             if (layNum < _mapManager.GetStartLayerNum())

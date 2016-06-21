@@ -10,7 +10,6 @@ GameObject:
   - 4: {fileID: 462214}
   - 198: {fileID: 19835454}
   - 199: {fileID: 19954392}
-  - 114: {fileID: 11474294}
   m_Layer: 0
   m_Name: Fog
   m_TagString: Untagged
@@ -30,24 +29,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
---- !u!114 &11474294
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 121730}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9ee9af5f0769444259c39a59205758b9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  scale: 0.6
-  intensity: 0.6
-  alpha: 0.6
-  alphasub: 0.05
-  pow: 0.6
-  color: {r: 1, g: 0.95, b: 0.9, a: 1}
-  fogMaterial: {fileID: 2100000, guid: 015ded2f9331e4ffdb975fd20910ea0c, type: 2}
 --- !u!198 &19835454
 ParticleSystem:
   m_ObjectHideFlags: 1
